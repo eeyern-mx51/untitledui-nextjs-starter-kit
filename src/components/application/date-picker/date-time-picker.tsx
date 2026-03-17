@@ -109,7 +109,7 @@ export const DateTimePicker = ({ value, defaultValue, onChange, onApply, onCance
                     {({ close }) => (
                         <>
                             <div className="flex px-6 py-5">
-                                <Calendar highlightedDates={highlightedDates} />
+                                <Calendar highlightedDates={highlightedDates} hideDateInput />
                             </div>
                             <div className="flex justify-between gap-3 border-t border-secondary p-4">
                                 <div className="hidden items-center gap-1.5 md:flex">

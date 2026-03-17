@@ -60,9 +60,11 @@ const PresetButton = ({ value, children, ...props }: HTMLAttributes<HTMLButtonEl
 interface CalendarProps extends AriaCalendarProps<DateValue> {
     /** The dates to highlight. */
     highlightedDates?: DateValue[];
+    /** Whether to hide the date input and today preset row. */
+    hideDateInput?: boolean;
 }
 
-export const Calendar = ({ highlightedDates, className, ...props }: CalendarProps) => {
+export const Calendar = ({ highlightedDates, hideDateInput, className, ...props }: CalendarProps) => {
     const context = useSlottedContext(AriaCalendarContext)!;
 
     const ContextWrapper = context ? Fragment : CalendarContextProvider;
@@ -76,10 +78,12 @@ export const Calendar = ({ highlightedDates, className, ...props }: CalendarProp
                     <Button slot="next" iconLeading={ChevronRight} size="sm" color="tertiary" className="size-8" />
                 </header>
 
-                <div className="flex gap-3">
-                    <DateInput className="flex-1" />
-                    <PresetButton value={today(getLocalTimeZone())}>Today</PresetButton>
-                </div>
+                {!hideDateInput && (
+                    <div className="flex gap-3">
+                        <DateInput className="flex-1" />
+                        <PresetButton value={today(getLocalTimeZone())}>Today</PresetButton>
+                    </div>
+                )}
 
                 <AriaCalendarGrid weekdayStyle="short" className="w-max">
                     <AriaCalendarGridHeader className="border-b-4 border-transparent">
