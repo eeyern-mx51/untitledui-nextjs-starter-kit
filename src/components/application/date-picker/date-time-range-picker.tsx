@@ -23,6 +23,7 @@ import {
 } from "react-aria-components";
 import { Button } from "@/components/base/buttons/button";
 import { cx } from "@/utils/cx";
+import { DateInput } from "./date-input";
 import { RangeCalendar } from "./range-calendar";
 import { RangePresetButton } from "./range-preset";
 import { TimeInput } from "./time-input";
@@ -231,29 +232,51 @@ export const DateTimeRangePicker = ({ value, defaultValue, onChange, onApply, on
                                         lastYear: presets.lastYear,
                                     }}
                                 />
-                                <div className="flex flex-col gap-3 border-t border-secondary px-6 py-3">
-                                    <div className="flex items-center gap-3">
-                                        <Clock className="size-5 text-fg-quaternary" />
-                                        <span className="text-sm font-medium text-secondary">Start</span>
-                                        <TimeInput
-                                            aria-label="Start time"
-                                            value={startTimeValue}
-                                            onChange={handleStartTimeChange}
-                                            className="ml-auto w-20"
-                                        />
+                                <div className="flex justify-between gap-3 border-t border-secondary p-4">
+                                    <div className="hidden items-center gap-3 md:flex">
+                                        <div className="flex items-center gap-1.5">
+                                            <DateInput slot="start" className="w-36" />
+                                            <TimeInput
+                                                aria-label="Start time"
+                                                value={startTimeValue}
+                                                onChange={handleStartTimeChange}
+                                                className="w-[4.5rem]"
+                                            />
+                                        </div>
+                                        <div className="text-md text-quaternary">–</div>
+                                        <div className="flex items-center gap-1.5">
+                                            <DateInput slot="end" className="w-36" />
+                                            <TimeInput
+                                                aria-label="End time"
+                                                value={endTimeValue}
+                                                onChange={handleEndTimeChange}
+                                                className="w-[4.5rem]"
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <Clock className="size-5 text-fg-quaternary" />
-                                        <span className="text-sm font-medium text-secondary">End</span>
-                                        <TimeInput
-                                            aria-label="End time"
-                                            value={endTimeValue}
-                                            onChange={handleEndTimeChange}
-                                            className="ml-auto w-20"
-                                        />
+                                    {/* Mobile: stacked time inputs */}
+                                    <div className="flex w-full flex-col gap-2 md:hidden">
+                                        <div className="flex items-center gap-2">
+                                            <Clock className="size-4 text-fg-quaternary" />
+                                            <span className="text-sm font-medium text-secondary">Start</span>
+                                            <TimeInput
+                                                aria-label="Start time"
+                                                value={startTimeValue}
+                                                onChange={handleStartTimeChange}
+                                                className="ml-auto w-[4.5rem]"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Clock className="size-4 text-fg-quaternary" />
+                                            <span className="text-sm font-medium text-secondary">End</span>
+                                            <TimeInput
+                                                aria-label="End time"
+                                                value={endTimeValue}
+                                                onChange={handleEndTimeChange}
+                                                className="ml-auto w-[4.5rem]"
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="flex justify-end gap-3 border-t border-secondary p-4">
                                     <div className="grid w-full grid-cols-2 gap-3 md:flex md:w-auto">
                                         <Button
                                             size="md"

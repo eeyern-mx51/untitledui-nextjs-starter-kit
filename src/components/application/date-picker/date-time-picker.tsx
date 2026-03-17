@@ -9,6 +9,7 @@ import { DatePicker as AriaDatePicker, Dialog as AriaDialog, Group as AriaGroup,
 import { Button } from "@/components/base/buttons/button";
 import { cx } from "@/utils/cx";
 import { Calendar } from "./calendar";
+import { DateInput } from "./date-input";
 import { TimeInput } from "./time-input";
 
 const highlightedDates = [today(getLocalTimeZone())];
@@ -110,37 +111,49 @@ export const DateTimePicker = ({ value, defaultValue, onChange, onApply, onCance
                             <div className="flex px-6 py-5">
                                 <Calendar highlightedDates={highlightedDates} />
                             </div>
-                            <div className="flex items-center gap-2 border-t border-secondary px-6 py-3">
-                                <Clock className="size-5 text-fg-quaternary" />
-                                <span className="text-sm font-medium text-secondary">Time</span>
-                                <TimeInput
-                                    aria-label="Select time"
-                                    value={timeValue}
-                                    onChange={handleTimeChange}
-                                    className="ml-auto w-20"
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-3 border-t border-secondary p-4">
-                                <Button
-                                    size="md"
-                                    color="secondary"
-                                    onClick={() => {
-                                        onCancel?.();
-                                        close();
-                                    }}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    size="md"
-                                    color="primary"
-                                    onClick={() => {
-                                        onApply?.();
-                                        close();
-                                    }}
-                                >
-                                    Apply
-                                </Button>
+                            <div className="flex justify-between gap-3 border-t border-secondary p-4">
+                                <div className="hidden items-center gap-1.5 md:flex">
+                                    <DateInput className="w-36" />
+                                    <TimeInput
+                                        aria-label="Select time"
+                                        value={timeValue}
+                                        onChange={handleTimeChange}
+                                        className="w-[4.5rem]"
+                                    />
+                                </div>
+                                {/* Mobile: time input row */}
+                                <div className="flex w-full items-center gap-2 md:hidden">
+                                    <Clock className="size-4 text-fg-quaternary" />
+                                    <span className="text-sm font-medium text-secondary">Time</span>
+                                    <TimeInput
+                                        aria-label="Select time"
+                                        value={timeValue}
+                                        onChange={handleTimeChange}
+                                        className="ml-auto w-[4.5rem]"
+                                    />
+                                </div>
+                                <div className="grid w-full grid-cols-2 gap-3 md:flex md:w-auto">
+                                    <Button
+                                        size="md"
+                                        color="secondary"
+                                        onClick={() => {
+                                            onCancel?.();
+                                            close();
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        size="md"
+                                        color="primary"
+                                        onClick={() => {
+                                            onApply?.();
+                                            close();
+                                        }}
+                                    >
+                                        Apply
+                                    </Button>
+                                </div>
                             </div>
                         </>
                     )}
