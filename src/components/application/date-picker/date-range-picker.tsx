@@ -20,13 +20,15 @@ const highlightedDates = [today(getLocalTimeZone())];
 interface DateRangePickerProps extends AriaDateRangePickerProps<DateValue> {
     /** Whether to show Cancel/Apply action buttons and date inputs in the footer. @default true */
     showActions?: boolean;
+    /** Force single month view even on desktop. @default false */
+    singleMonth?: boolean;
     /** The function to call when the apply button is clicked. */
     onApply?: () => void;
     /** The function to call when the cancel button is clicked. */
     onCancel?: () => void;
 }
 
-export const DateRangePicker = ({ value: valueProp, defaultValue, onChange, showActions = true, onApply, onCancel, ...props }: DateRangePickerProps) => {
+export const DateRangePicker = ({ value: valueProp, defaultValue, onChange, showActions = true, singleMonth = false, onApply, onCancel, ...props }: DateRangePickerProps) => {
     const { locale } = useLocale();
     const formatter = useDateFormatter({
         month: "short",
@@ -101,7 +103,7 @@ export const DateRangePicker = ({ value: valueProp, defaultValue, onChange, show
                 <AriaDialog className="flex rounded-2xl bg-primary shadow-xl ring ring-secondary_alt focus:outline-hidden">
                     {({ close }) => (
                         <>
-                            <div className="hidden w-38 flex-col gap-0.5 border-r border-solid border-secondary p-3 lg:flex">
+                            <div className={cx("hidden w-38 flex-col gap-0.5 border-r border-solid border-secondary p-3", !singleMonth && "lg:flex")}>
                                 {Object.values(presets).map((preset) => (
                                     <RangePresetButton
                                         key={preset.label}
@@ -120,6 +122,7 @@ export const DateRangePicker = ({ value: valueProp, defaultValue, onChange, show
                                     focusedValue={focusedValue}
                                     onFocusChange={setFocusedValue}
                                     highlightedDates={highlightedDates}
+                                    singleMonth={singleMonth}
                                     presets={{
                                         lastWeek: presets.lastWeek,
                                         lastMonth: presets.lastMonth,
@@ -127,35 +130,51 @@ export const DateRangePicker = ({ value: valueProp, defaultValue, onChange, show
                                     }}
                                 />
                                 {showActions && (
-                                    <div className="flex justify-between gap-3 border-t border-secondary p-4">
-                                        <div className="hidden items-center gap-3 md:flex">
-                                            <DateInput slot="start" className="w-36" />
-                                            <div className="text-md text-quaternary">–</div>
-                                            <DateInput slot="end" className="w-36" />
+                                    <>
+                                        {singleMonth && (
+                                            <div className="flex flex-col gap-3 border-t border-secondary px-4 pt-4">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="w-10 text-sm font-semibold text-brand-secondary">Start</span>
+                                                    <DateInput slot="start" className="flex-1" />
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="w-10 text-sm font-semibold text-brand-secondary">End</span>
+                                                    <DateInput slot="end" className="flex-1" />
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className={cx("flex justify-between gap-3 border-t border-secondary p-4", singleMonth && "border-t-0")}>
+                                            {!singleMonth && (
+                                                <div className="hidden items-center gap-3 md:flex">
+                                                    <DateInput slot="start" className="w-36" />
+                                                    <div className="text-md text-quaternary">–</div>
+                                                    <DateInput slot="end" className="w-36" />
+                                                </div>
+                                            )}
+                                            <div className="grid w-full grid-cols-2 gap-3 md:flex md:w-auto">
+                                                <Button
+                                                    size="md"
+                                                    color="secondary"
+                                                    onClick={() => {
+                                                        onCancel?.();
+                                                        close();
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    size="md"
+                                                    color="primary"
+                                                    onClick={() => {
+                                                        onApply?.();
+                                                        close();
+                                                    }}
+                                                >
+                                                    Apply
+                                                </Button>
+                                            </div>
                                         </div>
-                                        <div className="grid w-full grid-cols-2 gap-3 md:flex md:w-auto">
-                                            <Button
-                                                size="md"
-                                                color="secondary"
-                                                onClick={() => {
-                                                    onCancel?.();
-                                                    close();
-                                                }}
-                                            >
-                                                Cancel
-                                            </Button>
-                                            <Button
-                                                size="md"
-                                                color="primary"
-                                                onClick={() => {
-                                                    onApply?.();
-                                                    close();
-                                                }}
-                                            >
-                                                Apply
-                                            </Button>
-                                        </div>
-                                    </div>
+                                    </>
                                 )}
                             </div>
                         </>

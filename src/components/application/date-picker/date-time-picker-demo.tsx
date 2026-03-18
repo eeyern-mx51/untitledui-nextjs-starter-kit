@@ -22,47 +22,45 @@ export const DateTimePickerDemo = () => {
         <div className="flex min-h-dvh flex-col items-start gap-10 p-8">
             <div>
                 <h1 className="text-display-xs font-semibold text-primary">Date & Time Pickers</h1>
-                <p className="mt-2 text-md text-tertiary">All 8 picker variants — date and date+time, single and range, with and without actions.</p>
+                <p className="mt-2 text-md text-tertiary">All 8 picker variants across single month and dual month views.</p>
             </div>
 
-            <Divider />
+            <h3 className="text-md font-semibold text-brand-secondary">Single Month View</h3>
 
-            <Section title="1. Single Date — with actions" description="Date input + Today button, calendar, Cancel/Apply.">
+            <Section title="1. Date Picker" description="Single date selection with actions.">
                 <DatePicker onApply={() => {}} onCancel={() => {}} />
             </Section>
 
-            <Section title="2. Single Date — no actions" description="Date input + Today button, calendar. Closes on select.">
-                <DatePicker showActions={false} />
-            </Section>
-
-            <Divider />
-
-            <Section title="3. Single DateTime — with actions" description="Date input + time input, calendar, Cancel/Apply.">
+            <Section title="2. Date & Time Picker" description="Single date and time selection with actions.">
                 <DateTimePicker onApply={() => {}} onCancel={() => {}} />
             </Section>
 
-            <Section title="4. Single DateTime — no actions" description="Date input + time input, calendar. Closes on select.">
+            <Section title="3. Date Range Picker (single month)" description="Date range selection in single month view.">
+                <DateRangePicker singleMonth onApply={() => {}} onCancel={() => {}} />
+            </Section>
+
+            <Section title="4. Date & Time Range Picker (single month)" description="Date and time range selection in single month view.">
+                <DateTimeRangePicker singleMonth onApply={() => {}} onCancel={() => {}} />
+            </Section>
+
+            <Section title="5. Date Picker — no actions" description="Single date selection, closes on select.">
+                <DatePicker showActions={false} />
+            </Section>
+
+            <Section title="6. Date & Time Picker — no actions" description="Date and time selection, no Cancel/Apply footer.">
                 <DateTimePicker showActions={false} />
             </Section>
 
             <Divider />
 
-            <Section title="5. Date Range — with actions" description="Dual month calendar, presets sidebar, Start/End date inputs, Cancel/Apply.">
+            <h3 className="text-md font-semibold text-brand-secondary">Dual Month View</h3>
+
+            <Section title="7. Date Range Picker (dual month)" description="Date range with preset sidebar and dual calendar.">
                 <DateRangePicker onApply={() => {}} onCancel={() => {}} />
             </Section>
 
-            <Section title="6. Date Range — no actions" description="Dual month calendar, presets sidebar. Closes on range select.">
-                <DateRangePicker showActions={false} />
-            </Section>
-
-            <Divider />
-
-            <Section title="7. DateTime Range — with actions" description="Dual month calendar, presets sidebar, Start/End date+time inputs, Cancel/Apply.">
+            <Section title="8. Date & Time Range Picker (dual month)" description="Date and time range with preset sidebar and dual calendar.">
                 <DateTimeRangePicker onApply={() => {}} onCancel={() => {}} />
-            </Section>
-
-            <Section title="8. DateTime Range — no actions" description="Dual month calendar, presets sidebar. Closes on range select.">
-                <DateTimeRangePicker showActions={false} />
             </Section>
         </div>
     );

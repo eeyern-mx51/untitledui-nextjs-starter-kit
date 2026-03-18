@@ -71,10 +71,13 @@ interface RangeCalendarProps extends AriaRangeCalendarProps<DateValue> {
     highlightedDates?: DateValue[];
     /** The date presets to display. */
     presets?: Record<string, { label: string; value: { start: DateValue; end: DateValue } }>;
+    /** Force single month view even on desktop. @default false */
+    singleMonth?: boolean;
 }
 
-export const RangeCalendar = ({ presets, ...props }: RangeCalendarProps) => {
-    const isDesktop = useBreakpoint("md");
+export const RangeCalendar = ({ presets, singleMonth = false, ...props }: RangeCalendarProps) => {
+    const isDesktopBreakpoint = useBreakpoint("md");
+    const isDesktop = isDesktopBreakpoint && !singleMonth;
     const context = useSlottedContext(RangeCalendarContext);
 
     const ContextWrapper = context ? Fragment : RangeCalendarContextProvider;
@@ -96,19 +99,11 @@ export const RangeCalendar = ({ presets, ...props }: RangeCalendarProps) => {
                             <RangeCalendarTitle part="start" />
                         </h2>
 
-                        <Button slot="next" iconLeading={ChevronRight} size="sm" color="tertiary" className="size-8 md:hidden" />
+                        {!isDesktop && <Button slot="next" iconLeading={ChevronRight} size="sm" color="tertiary" className="size-8" />}
                     </header>
 
-                    {!isDesktop && (
-                        <div className="flex items-center gap-2 md:hidden">
-                            <DateInput slot="start" className="flex-1" />
-                            <div className="text-md text-quaternary">–</div>
-                            <DateInput slot="end" className="flex-1" />
-                        </div>
-                    )}
-
                     {!isDesktop && presets && (
-                        <div className="mt-1 flex justify-between gap-3 px-2 md:hidden">
+                        <div className="mt-1 flex justify-between gap-3 px-2">
                             {Object.values(presets).map((preset) => (
                                 <MobilePresetButton key={preset.label} value={preset.value}>
                                     {preset.label}
