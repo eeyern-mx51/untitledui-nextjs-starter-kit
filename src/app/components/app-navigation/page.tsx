@@ -5,13 +5,10 @@ import { NavItemBase } from "@/components/application/app-navigation/sidebar-nav
 import { ComponentPage, Section } from "../_shared/component-page";
 
 const navItems = [
-    { label: "Home", href: "#", icon: Home01, current: true },
+    { label: "Home", href: "#", icon: Home01 },
     { label: "Dashboard", href: "#", icon: BarChartSquare02 },
     { label: "Projects", href: "#", icon: LayersTwo01 },
     { label: "Team", href: "#", icon: Users01 },
-];
-
-const footerItems = [
     { label: "Help", href: "#", icon: HelpCircle },
     { label: "Settings", href: "#", icon: Settings01 },
 ];
@@ -21,8 +18,8 @@ export default function AppNavigationPage() {
         <ComponentPage title="App Navigation" description="Sidebar and header navigation for app layouts.">
             <Section title="Navigation Items">
                 <div className="flex w-72 flex-col gap-1 rounded-xl border border-secondary p-3">
-                    {[...navItems, ...footerItems].map((item) => (
-                        <NavItemBase key={item.label} href={item.href} icon={item.icon} current={item.current}>
+                    {navItems.map((item) => (
+                        <NavItemBase key={item.label} type="link" href={item.href} icon={item.icon}>
                             {item.label}
                         </NavItemBase>
                     ))}

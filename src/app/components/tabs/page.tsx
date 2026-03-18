@@ -17,7 +17,7 @@ export default function TabsPage() {
             <Section title="Underline">
                 <Tabs>
                     <TabList items={tabItems} type="underline">
-                        {(item) => <Tab id={item.id} icon={item.icon}>{item.children}</Tab>}
+                        {(item) => <Tab id={item.id}>{item.children}</Tab>}
                     </TabList>
                 </Tabs>
             </Section>
