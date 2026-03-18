@@ -13,13 +13,15 @@ import { Calendar } from "./calendar";
 const highlightedDates = [today(getLocalTimeZone())];
 
 interface DatePickerProps extends AriaDatePickerProps<DateValue> {
+    /** Whether to show Cancel/Apply action buttons. When false, the popover closes on date select. @default true */
+    showActions?: boolean;
     /** The function to call when the apply button is clicked. */
     onApply?: () => void;
     /** The function to call when the cancel button is clicked. */
     onCancel?: () => void;
 }
 
-export const DatePicker = ({ value: valueProp, defaultValue, onChange, onApply, onCancel, ...props }: DatePickerProps) => {
+export const DatePicker = ({ value: valueProp, defaultValue, onChange, showActions = true, onApply, onCancel, ...props }: DatePickerProps) => {
     const formatter = useDateFormatter({
         month: "short",
         day: "numeric",
@@ -30,7 +32,7 @@ export const DatePicker = ({ value: valueProp, defaultValue, onChange, onApply, 
     const formattedDate = value ? formatter.format(value.toDate(getLocalTimeZone())) : "Select date";
 
     return (
-        <AriaDatePicker shouldCloseOnSelect={false} {...props} value={value} onChange={setValue}>
+        <AriaDatePicker shouldCloseOnSelect={!showActions} {...props} value={value} onChange={setValue}>
             <AriaGroup>
                 <Button size="md" color="secondary" iconLeading={CalendarIcon}>
                     {formattedDate}
@@ -52,31 +54,33 @@ export const DatePicker = ({ value: valueProp, defaultValue, onChange, onApply, 
                 <AriaDialog className="rounded-2xl bg-primary shadow-xl ring ring-secondary_alt">
                     {({ close }) => (
                         <>
-                            <div className="flex px-6 py-5">
+                            <div className={cx("flex px-6 py-5", !showActions && "pb-6")}>
                                 <Calendar highlightedDates={highlightedDates} />
                             </div>
-                            <div className="grid grid-cols-2 gap-3 border-t border-secondary p-4">
-                                <Button
-                                    size="md"
-                                    color="secondary"
-                                    onClick={() => {
-                                        onCancel?.();
-                                        close();
-                                    }}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    size="md"
-                                    color="primary"
-                                    onClick={() => {
-                                        onApply?.();
-                                        close();
-                                    }}
-                                >
-                                    Apply
-                                </Button>
-                            </div>
+                            {showActions && (
+                                <div className="grid grid-cols-2 gap-3 border-t border-secondary p-4">
+                                    <Button
+                                        size="md"
+                                        color="secondary"
+                                        onClick={() => {
+                                            onCancel?.();
+                                            close();
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        size="md"
+                                        color="primary"
+                                        onClick={() => {
+                                            onApply?.();
+                                            close();
+                                        }}
+                                    >
+                                        Apply
+                                    </Button>
+                                </div>
+                            )}
                         </>
                     )}
                 </AriaDialog>

@@ -1,6 +1,6 @@
 "use client";
 
-import type { HTMLAttributes, PropsWithChildren } from "react";
+import type { HTMLAttributes, PropsWithChildren, ReactNode } from "react";
 import { Fragment, useContext, useState } from "react";
 import { type CalendarDate, getLocalTimeZone, today } from "@internationalized/date";
 import { ChevronLeft, ChevronRight } from "@untitledui/icons";
@@ -62,9 +62,11 @@ interface CalendarProps extends AriaCalendarProps<DateValue> {
     highlightedDates?: DateValue[];
     /** Whether to hide the date input and today preset row. */
     hideDateInput?: boolean;
+    /** Custom element to render in place of the Today button (e.g. a TimeInput). */
+    trailingAddon?: ReactNode;
 }
 
-export const Calendar = ({ highlightedDates, hideDateInput, className, ...props }: CalendarProps) => {
+export const Calendar = ({ highlightedDates, hideDateInput, trailingAddon, className, ...props }: CalendarProps) => {
     const context = useSlottedContext(AriaCalendarContext)!;
 
     const ContextWrapper = context ? Fragment : CalendarContextProvider;
@@ -81,7 +83,7 @@ export const Calendar = ({ highlightedDates, hideDateInput, className, ...props 
                 {!hideDateInput && (
                     <div className="flex gap-3">
                         <DateInput className="flex-1" />
-                        <PresetButton value={today(getLocalTimeZone())}>Today</PresetButton>
+                        {trailingAddon ?? <PresetButton value={today(getLocalTimeZone())}>Today</PresetButton>}
                     </div>
                 )}
 

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { CalendarDateTime, getLocalTimeZone, today, Time, type CalendarDate } from "@internationalized/date";
-import { Calendar as CalendarIcon, Clock } from "@untitledui/icons";
+import { Calendar as CalendarIcon } from "@untitledui/icons";
 import { useDateFormatter } from "react-aria";
 import type { DatePickerProps as AriaDatePickerProps, DateValue, TimeValue } from "react-aria-components";
 import { DatePicker as AriaDatePicker, Dialog as AriaDialog, Group as AriaGroup, Popover as AriaPopover } from "react-aria-components";
@@ -20,13 +20,15 @@ interface DateTimePickerProps extends Omit<AriaDatePickerProps<DateValue>, "valu
     defaultValue?: CalendarDateTime | null;
     /** Called when the value changes. */
     onChange?: (value: CalendarDateTime | null) => void;
+    /** Whether to show Cancel/Apply action buttons. @default true */
+    showActions?: boolean;
     /** The function to call when the apply button is clicked. */
     onApply?: () => void;
     /** The function to call when the cancel button is clicked. */
     onCancel?: () => void;
 }
 
-export const DateTimePicker = ({ value, defaultValue, onChange, onApply, onCancel, ...props }: DateTimePickerProps) => {
+export const DateTimePicker = ({ value, defaultValue, onChange, showActions = true, onApply, onCancel, ...props }: DateTimePickerProps) => {
     const [internalValue, setInternalValue] = useState<CalendarDateTime | null>(defaultValue ?? null);
 
     const dateTimeValue = value !== undefined ? value : internalValue;
@@ -107,41 +109,38 @@ export const DateTimePicker = ({ value, defaultValue, onChange, onApply, onCance
                 <AriaDialog className="rounded-2xl bg-primary shadow-xl ring ring-secondary_alt">
                     {({ close }) => (
                         <>
-                            <div className="flex px-6 py-5">
-                                <Calendar highlightedDates={highlightedDates} />
-                            </div>
-                            <div className="flex items-center gap-2 border-t border-secondary px-6 py-3">
-                                <Clock className="size-5 text-fg-quaternary" />
-                                <span className="text-sm font-medium text-secondary">Time</span>
-                                <TimeInput
-                                    aria-label="Select time"
-                                    value={timeValue}
-                                    onChange={handleTimeChange}
-                                    className="ml-auto w-[4.5rem]"
+                            <div className={cx("flex px-6 py-5", !showActions && "pb-6")}>
+                                <Calendar
+                                    highlightedDates={highlightedDates}
+                                    trailingAddon={
+                                        <TimeInput aria-label="Select time" value={timeValue} onChange={handleTimeChange} />
+                                    }
                                 />
                             </div>
-                            <div className="grid grid-cols-2 gap-3 border-t border-secondary p-4">
-                                <Button
-                                    size="md"
-                                    color="secondary"
-                                    onClick={() => {
-                                        onCancel?.();
-                                        close();
-                                    }}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    size="md"
-                                    color="primary"
-                                    onClick={() => {
-                                        onApply?.();
-                                        close();
-                                    }}
-                                >
-                                    Apply
-                                </Button>
-                            </div>
+                            {showActions && (
+                                <div className="grid grid-cols-2 gap-3 border-t border-secondary p-4">
+                                    <Button
+                                        size="md"
+                                        color="secondary"
+                                        onClick={() => {
+                                            onCancel?.();
+                                            close();
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        size="md"
+                                        color="primary"
+                                        onClick={() => {
+                                            onApply?.();
+                                            close();
+                                        }}
+                                    >
+                                        Apply
+                                    </Button>
+                                </div>
+                            )}
                         </>
                     )}
                 </AriaDialog>

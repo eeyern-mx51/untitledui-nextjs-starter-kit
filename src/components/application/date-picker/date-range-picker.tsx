@@ -18,13 +18,15 @@ const now = today(getLocalTimeZone());
 const highlightedDates = [today(getLocalTimeZone())];
 
 interface DateRangePickerProps extends AriaDateRangePickerProps<DateValue> {
+    /** Whether to show Cancel/Apply action buttons and date inputs in the footer. @default true */
+    showActions?: boolean;
     /** The function to call when the apply button is clicked. */
     onApply?: () => void;
     /** The function to call when the cancel button is clicked. */
     onCancel?: () => void;
 }
 
-export const DateRangePicker = ({ value: valueProp, defaultValue, onChange, onApply, onCancel, ...props }: DateRangePickerProps) => {
+export const DateRangePicker = ({ value: valueProp, defaultValue, onChange, showActions = true, onApply, onCancel, ...props }: DateRangePickerProps) => {
     const { locale } = useLocale();
     const formatter = useDateFormatter({
         month: "short",
@@ -77,7 +79,7 @@ export const DateRangePicker = ({ value: valueProp, defaultValue, onChange, onAp
     );
 
     return (
-        <AriaDateRangePicker aria-label="Date range picker" shouldCloseOnSelect={false} {...props} value={value} onChange={setValue}>
+        <AriaDateRangePicker aria-label="Date range picker" shouldCloseOnSelect={!showActions} {...props} value={value} onChange={setValue}>
             <AriaGroup>
                 <Button size="md" color="secondary" iconLeading={CalendarIcon}>
                     {!value ? <span className="text-placeholder">Select dates</span> : `${formattedStartDate} – ${formattedEndDate}`}
@@ -124,35 +126,37 @@ export const DateRangePicker = ({ value: valueProp, defaultValue, onChange, onAp
                                         lastYear: presets.lastYear,
                                     }}
                                 />
-                                <div className="flex justify-between gap-3 border-t border-secondary p-4">
-                                    <div className="hidden items-center gap-3 md:flex">
-                                        <DateInput slot="start" className="w-36" />
-                                        <div className="text-md text-quaternary">–</div>
-                                        <DateInput slot="end" className="w-36" />
+                                {showActions && (
+                                    <div className="flex justify-between gap-3 border-t border-secondary p-4">
+                                        <div className="hidden items-center gap-3 md:flex">
+                                            <DateInput slot="start" className="w-36" />
+                                            <div className="text-md text-quaternary">–</div>
+                                            <DateInput slot="end" className="w-36" />
+                                        </div>
+                                        <div className="grid w-full grid-cols-2 gap-3 md:flex md:w-auto">
+                                            <Button
+                                                size="md"
+                                                color="secondary"
+                                                onClick={() => {
+                                                    onCancel?.();
+                                                    close();
+                                                }}
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                size="md"
+                                                color="primary"
+                                                onClick={() => {
+                                                    onApply?.();
+                                                    close();
+                                                }}
+                                            >
+                                                Apply
+                                            </Button>
+                                        </div>
                                     </div>
-                                    <div className="grid w-full grid-cols-2 gap-3 md:flex md:w-auto">
-                                        <Button
-                                            size="md"
-                                            color="secondary"
-                                            onClick={() => {
-                                                onCancel?.();
-                                                close();
-                                            }}
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            size="md"
-                                            color="primary"
-                                            onClick={() => {
-                                                onApply?.();
-                                                close();
-                                            }}
-                                        >
-                                            Apply
-                                        </Button>
-                                    </div>
-                                </div>
+                                )}
                             </div>
                         </>
                     )}
