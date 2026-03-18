@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree } from "next/font/google";
-import { I18nProvider } from "react-aria-components";
+import { LocaleProvider } from "@/providers/locale";
 import { RouteProvider } from "@/providers/router-provider";
 import { Theme } from "@/providers/theme";
 import "@/styles/globals.css";
@@ -30,11 +30,11 @@ export default function RootLayout({
     return (
         <html lang="en-AU" suppressHydrationWarning>
             <body className={cx(figtree.variable, "bg-primary antialiased")}>
-                <I18nProvider locale="en-AU">
+                <LocaleProvider locale="en-AU">
                     <RouteProvider>
                         <Theme>{children}</Theme>
                     </RouteProvider>
-                </I18nProvider>
+                </LocaleProvider>
             </body>
         </html>
     );
