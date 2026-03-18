@@ -13,7 +13,7 @@ export const TimeInput = ({ className, ...props }: TimeInputProps) => {
         <AriaTimeField hourCycle={24} {...props}>
             <AriaDateInput
                 className={cx(
-                    "flex rounded-lg bg-primary px-2.5 py-2 text-md shadow-xs ring-1 ring-primary ring-inset focus-within:ring-2 focus-within:ring-brand",
+                    "flex items-center justify-center rounded-lg bg-primary px-2.5 py-2 text-md shadow-xs ring-1 ring-primary ring-inset focus-within:ring-2 focus-within:ring-brand",
                     className,
                 )}
             >
