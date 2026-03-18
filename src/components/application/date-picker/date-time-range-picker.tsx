@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useCallback } from "react";
 import {
+    CalendarDate,
     CalendarDateTime,
     endOfMonth,
     endOfWeek,
@@ -86,11 +87,11 @@ export const DateTimeRangePicker = ({ value, defaultValue, onChange, showActions
     const formattedStartDate = dateTimeValue?.start ? formatter.format(dateTimeValue.start.toDate(getLocalTimeZone())) : "Select date & time";
     const formattedEndDate = dateTimeValue?.end ? formatter.format(dateTimeValue.end.toDate(getLocalTimeZone())) : "Select date & time";
 
-    // Extract date-only range for the calendar
+    // Extract date-only range for the calendar (must be CalendarDate, not CalendarDateTime, so DateInput only shows date segments)
     const calendarValue = dateTimeValue
         ? {
-              start: dateTimeValue.start.set({ hour: 0, minute: 0, second: 0, millisecond: 0 }) as unknown as DateValue,
-              end: dateTimeValue.end.set({ hour: 0, minute: 0, second: 0, millisecond: 0 }) as unknown as DateValue,
+              start: new CalendarDate(dateTimeValue.start.year, dateTimeValue.start.month, dateTimeValue.start.day) as DateValue,
+              end: new CalendarDate(dateTimeValue.end.year, dateTimeValue.end.month, dateTimeValue.end.day) as DateValue,
           }
         : null;
 

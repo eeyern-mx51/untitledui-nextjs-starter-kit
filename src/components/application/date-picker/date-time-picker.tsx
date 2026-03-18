@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { CalendarDateTime, getLocalTimeZone, today, Time, type CalendarDate } from "@internationalized/date";
+import { CalendarDate, CalendarDateTime, getLocalTimeZone, today, Time } from "@internationalized/date";
 import { Calendar as CalendarIcon } from "@untitledui/icons";
 import { useDateFormatter } from "react-aria";
 import type { DatePickerProps as AriaDatePickerProps, DateValue, TimeValue } from "react-aria-components";
@@ -53,9 +53,9 @@ export const DateTimePicker = ({ value, defaultValue, onChange, showActions = tr
 
     const formattedDate = dateTimeValue ? formatter.format(dateTimeValue.toDate(getLocalTimeZone())) : "Select date & time";
 
-    // Extract the date portion for the calendar
+    // Extract date-only value for the calendar (must be CalendarDate, not CalendarDateTime, so DateInput only shows date segments)
     const calendarValue: CalendarDate | null = dateTimeValue
-        ? (dateTimeValue.set({ hour: 0, minute: 0, second: 0, millisecond: 0 }) as unknown as CalendarDate)
+        ? new CalendarDate(dateTimeValue.year, dateTimeValue.month, dateTimeValue.day)
         : null;
 
     // Handle calendar date selection: preserve time when date changes
