@@ -5,6 +5,8 @@ import type { DateInputProps as AriaDateInputProps } from "react-aria-components
 import {
     CalendarStateContext as AriaCalendarStateContext,
     DateInput as AriaDateInput,
+    DatePickerStateContext as AriaDatePickerStateContext,
+    DateRangePickerStateContext as AriaDateRangePickerStateContext,
     DateSegment as AriaDateSegment,
     RangeCalendarStateContext as AriaRangeCalendarStateContext,
 } from "react-aria-components";
@@ -18,8 +20,14 @@ interface DateInputProps extends Omit<AriaDateInputProps, "children"> {
 const DateInputInner = ({ placeholder = "Select date", className, ...props }: DateInputProps) => {
     const calendarState = useContext(AriaCalendarStateContext);
     const rangeCalendarState = useContext(AriaRangeCalendarStateContext);
+    const datePickerState = useContext(AriaDatePickerStateContext);
+    const dateRangePickerState = useContext(AriaDateRangePickerStateContext);
 
-    const hasValue = calendarState?.value != null || rangeCalendarState?.value != null;
+    const hasValue =
+        calendarState?.value != null ||
+        rangeCalendarState?.value != null ||
+        datePickerState?.value != null ||
+        dateRangePickerState?.dateRange != null;
 
     return (
         <div className={cx("group/dateinput relative", typeof className === "string" && className)}>
