@@ -22,7 +22,7 @@ const DateInputInner = ({ placeholder = "Select date", className, ...props }: Da
     const hasValue = calendarState?.value != null || rangeCalendarState?.value != null;
 
     return (
-        <div className={cx("relative", typeof className === "string" && className)}>
+        <div className={cx("group/dateinput relative", typeof className === "string" && className)}>
             <AriaDateInput
                 {...props}
                 className="flex rounded-lg bg-primary px-2.5 py-2 text-md shadow-xs ring-1 ring-primary ring-inset focus-within:ring-2 focus-within:ring-brand"
@@ -32,15 +32,18 @@ const DateInputInner = ({ placeholder = "Select date", className, ...props }: Da
                         segment={segment}
                         className={cx(
                             "rounded px-0.5 tabular-nums caret-transparent focus:bg-brand-solid focus:font-medium focus:text-white focus:outline-hidden",
-                            hasValue ? "text-primary" : "text-transparent focus:text-white",
+                            hasValue
+                                ? "text-primary"
+                                : "text-transparent group-focus-within/dateinput:text-placeholder group-focus-within/dateinput:uppercase focus:!text-white",
                             segment.isPlaceholder && hasValue && "text-placeholder uppercase",
                             segment.type === "literal" && hasValue && "text-fg-quaternary",
+                            segment.type === "literal" && !hasValue && "group-focus-within/dateinput:text-fg-quaternary",
                         )}
                     />
                 )}
             </AriaDateInput>
             {!hasValue && (
-                <span className="pointer-events-none absolute inset-0 flex items-center px-2.5 text-md text-placeholder">
+                <span className="pointer-events-none absolute inset-0 flex items-center px-2.5 text-md text-placeholder group-focus-within/dateinput:hidden">
                     {placeholder}
                 </span>
             )}
