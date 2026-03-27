@@ -1,22 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { getLocalTimeZone, toCalendarDateTime, today } from "@internationalized/date";
+import { useState, useCallback } from "react";
+import { CalendarDate, CalendarDateTime, getLocalTimeZone, today } from "@internationalized/date";
 import { Calendar as CalendarIcon, Clock } from "@untitledui/icons";
 import { useDateFormatter } from "react-aria";
-import type { DateValue, Key } from "react-aria-components";
-import {
-    DateField as AriaDateField,
-    DatePicker as AriaDatePicker,
-    Dialog as AriaDialog,
-    Group as AriaGroup,
-    Popover as AriaPopover,
-} from "react-aria-components";
+import type { DatePickerProps as AriaDatePickerProps, DateValue, Key } from "react-aria-components";
+import { DatePicker as AriaDatePicker, Dialog as AriaDialog, Group as AriaGroup, Popover as AriaPopover } from "react-aria-components";
 import { Button } from "@/components/base/buttons/button";
-import { InputDateBase } from "@/components/base/input/input-date";
 import { Select } from "@/components/base/select/select";
 import { cx } from "@/utils/cx";
 import { Calendar } from "./calendar";
+import { DateInput } from "./date-input";
+
+const highlightedDates = [today(getLocalTimeZone())];
 
 /** 27 slots = 9:00 AM to 10:00 PM in 30-min intervals */
 const TIME_SLOTS = Array.from({ length: 27 }, (_, i) => {
@@ -29,49 +25,86 @@ const TIME_SLOTS = Array.from({ length: 27 }, (_, i) => {
     return { id: `${hour}:${String(minute).padStart(2, "0")}`, hour, minute, label };
 });
 
-const highlightedDates = [today(getLocalTimeZone())];
-
-interface DateTimePickerSlotsProps {
+interface DateTimePickerSlotsProps extends Omit<AriaDatePickerProps<DateValue>, "value" | "defaultValue" | "onChange"> {
+    /** The controlled value of the date time picker. */
+    value?: CalendarDateTime | null;
+    /** The default value of the date time picker (uncontrolled). */
+    defaultValue?: CalendarDateTime | null;
+    /** Called when the value changes. */
+    onChange?: (value: CalendarDateTime | null) => void;
     /** The function to call when the apply button is clicked. */
     onApply?: () => void;
     /** The function to call when the cancel button is clicked. */
     onCancel?: () => void;
 }
 
-export const DateTimePickerSlots = ({ onApply, onCancel }: DateTimePickerSlotsProps) => {
-    const [value, setValue] = useState<DateValue | null>(() => toCalendarDateTime(today(getLocalTimeZone())));
-    const [focusedValue, setFocusedValue] = useState<DateValue | null>(() => toCalendarDateTime(today(getLocalTimeZone())));
+export const DateTimePickerSlots = ({ value, defaultValue, onChange, onApply, onCancel, ...props }: DateTimePickerSlotsProps) => {
+    const [internalValue, setInternalValue] = useState<CalendarDateTime | null>(defaultValue ?? null);
+
+    const dateTimeValue = value !== undefined ? value : internalValue;
+    const setDateTimeValue = useCallback(
+        (newValue: CalendarDateTime | null) => {
+            if (value === undefined) {
+                setInternalValue(newValue);
+            }
+            onChange?.(newValue);
+        },
+        [value, onChange],
+    );
 
     const dateFormatter = useDateFormatter({ month: "short", day: "numeric", year: "numeric" });
     const timeFormatter = useDateFormatter({ hour: "numeric", minute: "numeric" });
 
-    const handleTodayClick = () => {
-        const t = today(getLocalTimeZone());
-        const date = value && "hour" in value ? toCalendarDateTime(t).set({ hour: value.hour, minute: value.minute }) : toCalendarDateTime(t);
-        setValue(date);
-        setFocusedValue(date);
+    // Extract date-only value for the calendar (must be CalendarDate, not CalendarDateTime, so DateInput only shows date segments)
+    const calendarValue: CalendarDate | null = dateTimeValue
+        ? new CalendarDate(dateTimeValue.year, dateTimeValue.month, dateTimeValue.day)
+        : null;
+
+    // Handle calendar date selection: preserve time when date changes
+    const handleCalendarChange = (newDate: DateValue | null) => {
+        if (!newDate) {
+            setDateTimeValue(null);
+            return;
+        }
+        const hour = dateTimeValue?.hour ?? 0;
+        const minute = dateTimeValue?.minute ?? 0;
+        setDateTimeValue(new CalendarDateTime(newDate.year, newDate.month, newDate.day, hour, minute));
     };
 
+    // Handle time slot selection: preserve date when time changes
     const handleTimeClick = (key: Key | null) => {
         const slot = TIME_SLOTS.find((s) => s.id === key);
         if (!slot) return;
-        const date = value ?? toCalendarDateTime(today(getLocalTimeZone()));
-        setValue(date.set({ hour: slot.hour, minute: slot.minute }));
+
+        if (dateTimeValue) {
+            setDateTimeValue(dateTimeValue.set({ hour: slot.hour, minute: slot.minute }) as CalendarDateTime);
+        } else {
+            // No date selected yet — default to today
+            const t = today(getLocalTimeZone());
+            setDateTimeValue(new CalendarDateTime(t.year, t.month, t.day, slot.hour, slot.minute));
+        }
     };
 
-    const selectedTimeKey = value && "hour" in value ? `${value.hour}:${String(value.minute).padStart(2, "0")}` : undefined;
+    const selectedTimeKey =
+        dateTimeValue ? `${dateTimeValue.hour}:${String(dateTimeValue.minute).padStart(2, "0")}` : undefined;
 
     return (
-        <AriaDatePicker shouldCloseOnSelect={false} aria-label="Date and time picker" value={value} onChange={setValue}>
+        <AriaDatePicker
+            aria-label="Date and time picker"
+            shouldCloseOnSelect={false}
+            {...props}
+            value={calendarValue}
+            onChange={handleCalendarChange}
+        >
             <AriaGroup>
-                <Button size="sm" color="secondary" iconLeading={CalendarIcon}>
-                    {value ? (
+                <Button size="md" color="secondary" iconLeading={CalendarIcon}>
+                    {dateTimeValue ? (
                         <>
-                            {dateFormatter.format(value.toDate(getLocalTimeZone()))}{" "}
-                            <span className="text-quaternary">{timeFormatter.format(value.toDate(getLocalTimeZone()))}</span>
+                            {dateFormatter.format(dateTimeValue.toDate(getLocalTimeZone()))}{" "}
+                            <span className="text-quaternary">{timeFormatter.format(dateTimeValue.toDate(getLocalTimeZone()))}</span>
                         </>
                     ) : (
-                        "Select date"
+                        "Select date & time"
                     )}
                 </Button>
             </AriaGroup>
@@ -93,17 +126,9 @@ export const DateTimePickerSlots = ({ onApply, onCancel }: DateTimePickerSlotsPr
                         <>
                             <div className="flex">
                                 <div className="flex px-6 py-5">
-                                    <Calendar focusedValue={focusedValue} onFocusChange={setFocusedValue} highlightedDates={highlightedDates}>
-                                        {/* Mobile: date field + time select inline */}
-                                        <div className="flex flex-wrap gap-3 md:hidden">
-                                            <div className="flex flex-1 gap-3">
-                                                <AriaDateField aria-label="Date" granularity="day" className="flex-1">
-                                                    <InputDateBase size="sm" className="flex-1" />
-                                                </AriaDateField>
-                                                <Button slot={null} size="sm" color="secondary" onClick={handleTodayClick}>
-                                                    Today
-                                                </Button>
-                                            </div>
+                                    <Calendar highlightedDates={highlightedDates}>
+                                        {/* Mobile: time select dropdown below calendar grid */}
+                                        <div className="md:hidden">
                                             <Select
                                                 aria-label="Time"
                                                 size="sm"
@@ -112,7 +137,6 @@ export const DateTimePickerSlots = ({ onApply, onCancel }: DateTimePickerSlotsPr
                                                 items={TIME_SLOTS}
                                                 selectedKey={selectedTimeKey}
                                                 onSelectionChange={handleTimeClick}
-                                                className="flex-1"
                                             >
                                                 {(slot) => (
                                                     <Select.Item id={slot.id} icon={Clock}>
@@ -131,7 +155,9 @@ export const DateTimePickerSlots = ({ onApply, onCancel }: DateTimePickerSlotsPr
                                         <ul className="absolute inset-0 flex min-h-0 flex-col gap-1.5 overflow-y-auto mask-b-from-80% mask-b-to-98% px-5 pb-5">
                                             {TIME_SLOTS.map((slot) => {
                                                 const isSelected =
-                                                    value && "hour" in value && value.hour === slot.hour && value.minute === slot.minute;
+                                                    dateTimeValue &&
+                                                    dateTimeValue.hour === slot.hour &&
+                                                    dateTimeValue.minute === slot.minute;
                                                 return (
                                                     <li key={slot.id} className="flex-1">
                                                         <Button
@@ -151,15 +177,10 @@ export const DateTimePickerSlots = ({ onApply, onCancel }: DateTimePickerSlotsPr
                                 </div>
                             </div>
 
-                            {/* Footer: date field (desktop), cancel/apply */}
+                            {/* Footer: date input (desktop only) + cancel/apply */}
                             <div className="flex gap-3 border-t border-secondary p-4">
                                 <div className="mr-auto hidden gap-3 md:flex">
-                                    <AriaDateField aria-label="Date" granularity="day" className="flex-1">
-                                        <InputDateBase size="sm" />
-                                    </AriaDateField>
-                                    <Button slot={null} size="sm" color="secondary" onClick={handleTodayClick}>
-                                        Today
-                                    </Button>
+                                    <DateInput className="flex-1" />
                                 </div>
 
                                 <Button
