@@ -64,9 +64,11 @@ interface CalendarProps extends AriaCalendarProps<DateValue> {
     hideDateInput?: boolean;
     /** Custom element to render in place of the Today button (e.g. a TimeInput). */
     trailingAddon?: ReactNode;
+    /** Additional content rendered below the calendar grid (e.g. mobile time selector). */
+    children?: ReactNode;
 }
 
-export const Calendar = ({ highlightedDates, hideDateInput, trailingAddon, className, ...props }: CalendarProps) => {
+export const Calendar = ({ highlightedDates, hideDateInput, trailingAddon, children, className, ...props }: CalendarProps) => {
     const context = useSlottedContext(AriaCalendarContext)!;
 
     const ContextWrapper = context ? Fragment : CalendarContextProvider;
@@ -101,6 +103,7 @@ export const Calendar = ({ highlightedDates, hideDateInput, trailingAddon, class
                         )}
                     </AriaCalendarGridBody>
                 </AriaCalendarGrid>
+                {children}
             </AriaCalendar>
         </ContextWrapper>
     );
