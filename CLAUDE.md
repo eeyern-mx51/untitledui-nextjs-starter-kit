@@ -809,3 +809,49 @@ Use background color variables to manage all fill colors for elements in your de
 | bg-success-primary      | Primary success state background color for components.                                                                                                                                        |
 | bg-success-secondary    | Secondary success state background color for components such as featured icons.                                                                                                               |
 | bg-success-solid        | Default solid (dark) success state background color for components such as featured icons and metric items.                                                                                   |
+
+## Date & Time Picker Design Rules
+
+These rules govern all date and time picker components in the product. The product involves payments and settlement filtering, so calendar-based selection is the default interaction pattern.
+
+### General Rules (All Pickers)
+
+1. **Button-triggered**: Date selection always uses a button that opens a calendar picker dialog. The button is the primary interaction surface — NOT an inline input field.
+2. **Label**: A label sits above the button for context, matching the pattern used for input fields.
+3. **Clear button**: Every date picker dialog includes a Clear button that resets the selection and keeps the dialog open (does NOT close on clear).
+4. **Frontend validation**: Validation errors appear inside the dialog after the user selects a date and presses Apply.
+5. **Backend validation**: For form submissions, backend errors appear as supporting/hint text below the button, matching how input field errors are displayed.
+6. **Date input inside dialog**: For keyboard users who need manual date entry, segmented date input fields (dd/mm/yyyy) are provided inside the picker dialog — not as the main trigger.
+
+### Single Date Picker
+
+- The button opens a calendar dialog with: month navigation, date grid, date input row, Today preset, Clear button, Cancel/Apply actions.
+- No time selection inside the dialog.
+
+### Single Date & Time
+
+- Date and time are **decoupled into two separate fields** on the form:
+  - A date picker button (opens calendar dialog, date only)
+  - A separate time input field alongside the date button
+- These are two independent fields side by side — NOT grouped in a single wrapper.
+- The date picker dialog itself does NOT include time selection.
+
+### Date Range Picker
+
+- The button opens a range calendar dialog with: dual-month view (desktop), preset sidebar, start/end date inputs, Cancel/Apply actions, Clear button.
+- No time selection inside the dialog.
+
+### Date & Time Range Picker
+
+- Time inputs remain inside the range picker dialog alongside the date range selection.
+- The goal is to minimize clicks for selecting start date, end date, start time, and end time in one flow.
+- Follows the date range pattern but with time inputs added for start and end.
+
+### Implementation Status
+
+- [ ] Single Date Picker — add label, clear button, validation
+- [ ] Single Date & Time — decouple into separate date button + time input
+- [ ] Date Range Picker — add label, clear button, validation
+- [ ] Date & Time Range Picker — add label, clear button, validation
+- [ ] Backend error supporting text below buttons
+- [ ] Remove old "no actions" variants (superseded by these patterns)

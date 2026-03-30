@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Date Picker Design Review</title>
+<style>
+  :root {
+    --brand-500: #9E77ED;
+    --brand-600: #7F56D9;
+    --brand-700: #6941C6;
+    --brand-50: #F9F5FF;
+    --gray-25: #FCFCFD;
+    --gray-50: #F9FAFB;
+    --gray-100: #F2F4F7;
+    --gray-200: #EAECF0;
+    --gray-300: #D0D5DD;
+    --gray-400: #98A2B3;
+    --gray-500: #667085;
+    --gray-600: #475467;
+    --gray-700: #344054;
+    --gray-800: #182230;
+    --gray-900: #101828;
+    --error-500: #F04438;
+    --error-50: #FEF3F2;
+    --error-700: #B42318;
+    --success-500: #12B76A;
+    --white: #FFFFFF;
+    --shadow-xs: 0 1px 2px 0 rgba(16,24,40,.05);
+    --shadow-lg: 0 12px 16px -4px rgba(16,24,40,.08), 0 4px 6px -2px rgba(16,24,40,.03);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-900);
+    padding: 48px;
+    line-height: 1.5;
+  }
+
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+  h2 { font-size: 18px; font-weight: 600; margin-bottom: 4px; color: var(--gray-900); }
+  h3 { font-size: 14px; font-weight: 600; color: var(--brand-700); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.02em; }
+  .subtitle { font-size: 16px; color: var(--gray-500); margin-bottom: 40px; }
+
+  .section { margin-bottom: 56px; }
+  .divider { height: 1px; background: var(--gray-200); margin: 48px 0; }
+
+  .mockup-row {
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .mockup-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+    padding: 32px;
+    flex: 1;
+    min-width: 340px;
+    max-width: 520px;
+  }
+
+  .mockup-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 4px;
+  }
+
+  .mockup-desc {
+    font-size: 13px;
+    color: var(--gray-500);
+    margin-bottom: 20px;
+  }
+
+  /* Component mocks */
+  .field-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-700);
+    margin-bottom: 6px;
+  }
+
+  .field-hint {
+    font-size: 14px;
+    color: var(--gray-500);
+    margin-top: 6px;
+  }
+
+  .field-hint.error {
+    color: var(--error-500);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-300);
+    background: var(--white);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-700);
+    box-shadow: var(--shadow-xs);
+    cursor: pointer;
+  }
+
+  .btn.error-state {
+    border-color: var(--error-500);
+  }
+
+  .btn-primary {
+    background: var(--brand-600);
+    color: var(--white);
+    border-color: var(--brand-600);
+  }
+
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .btn-link {
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: var(--brand-600);
+    font-weight: 600;
+    padding: 0;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .icon-placeholder {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-placeholder svg { width: 20px; height: 20px; stroke: var(--gray-500); fill: none; stroke-width: 1.67; stroke-linecap: round; stroke-linejoin: round; }
+
+  .placeholder-text { color: var(--gray-400); }
+  .time-muted { color: var(--gray-400); }
+
+  /* Dialog mock */
+  .dialog {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-100);
+    overflow: hidden;
+    margin-top: 8px;
+    display: inline-block;
+  }
+
+  .dialog-body { padding: 20px 24px; }
+  .dialog-footer {
+    border-top: 1px solid var(--gray-200);
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+  }
+
+  .dialog-footer .btn { flex: 1; justify-content: center; }
+
+  /* Calendar mock */
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .cal-title { font-size: 14px; font-weight: 600; color: var(--gray-700); }
+
+  .cal-nav {
+    width: 28px; height: 28px; border-radius: 6px; border: none; background: none;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--gray-500);
+  }
+
+  .cal-input-row { display: flex; gap: 12px; margin-bottom: 12px; }
+
+  .cal-input {
+    flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--gray-300);
+    font-size: 14px; color: var(--gray-700); box-shadow: var(--shadow-xs);
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 40px);
+    gap: 0;
+    font-size: 14px;
+  }
+
+  .cal-day-header {
+    height: 40px; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 500; color: var(--gray-500);
+  }
+
+  .cal-day {
+    height: 40px; display: flex; align-items: center; justify-content: center;
+    border-radius: 20px; font-size: 14px; color: var(--gray-700); position: relative;
+  }
+
+  .cal-day.selected { background: var(--brand-600); color: var(--white); font-weight: 500; }
+  .cal-day.today { font-weight: 600; }
+  .cal-day.today::after {
+    content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 4px; border-radius: 50%; background: var(--brand-600);
+  }
+  .cal-day.selected.today::after { background: var(--white); }
+  .cal-day.range-bg { background: var(--brand-50); border-radius: 0; }
+  .cal-day.range-start { background: var(--brand-600); color: var(--white); border-radius: 20px 0 0 20px; }
+  .cal-day.range-end { background: var(--brand-600); color: var(--white); border-radius: 0 20px 20px 0; }
+  .cal-day.muted { color: var(--gray-300); }
+
+  /* Time input mock */
+  .time-input {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-300);
+    font-size: 14px;
+    color: var(--gray-700);
+    box-shadow: var(--shadow-xs);
+    width: 80px;
+    text-align: center;
+  }
+
+  /* Inline form row */
+  .form-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+  }
+
+  .form-field { display: flex; flex-direction: column; }
+
+  /* Error dialog content */
+  .dialog-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--error-50);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--error-700);
+    margin-top: 12px;
+  }
+
+  .dialog-error svg { width: 16px; height: 16px; stroke: var(--error-500); fill: none; stroke-width: 2; flex-shrink: 0; }
+
+  /* Clear row */
+  .clear-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+
+  /* UX notes */
+  .ux-note {
+    background: #FFFAEB;
+    border: 1px solid #FEDF89;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--gray-700);
+    margin-top: 16px;
+    line-height: 1.6;
+  }
+
+  .ux-note strong { color: var(--gray-900); }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--brand-50);
+    color: var(--brand-700);
+    margin-right: 6px;
+  }
+
+  .tag.new { background: #ECFDF3; color: #027A48; }
+  .tag.changed { background: #FFF6ED; color: #C4320A; }
+
+  /* Range footer with time */
+  .range-footer-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: auto;
+  }
+
+  .range-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--brand-600);
+    width: 36px;
+  }
+
+  .range-dash { color: var(--gray-400); font-size: 14px; }
+
+  /* Annotation arrows */
+  .annotation {
+    position: relative;
+  }
+
+  .annotation-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--brand-600);
+    background: var(--brand-50);
+    padding: 2px 8px;
+    border-radius: 4px;
+    position: absolute;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<h1>Date & Time Picker — Design Review</h1>
+<p class="subtitle">Proposed patterns for payments & settlement filtering. All interactions start from a button trigger.</p>
+
+<!-- ===================== PATTERN 1: SINGLE DATE ===================== -->
+<div class="section">
+  <h3>Pattern 1 — Single Date Picker</h3>
+
+  <div class="mockup-row">
+    <!-- Default state -->
+    <div class="mockup-card">
+      <div class="mockup-title">Default State</div>
+      <div class="mockup-desc"><span class="tag new">New</span> Label above button, button triggers calendar</div>
+
+      <div class="form-field">
+        <div class="field-label">Settlement date</div>
+        <button class="btn">
+          <span class="icon-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          <span class="placeholder-text">Select date</span>
+        </button>
+      </div>
+
+      <div class="ux-note">
+        <strong>UX:</strong> Button is the sole trigger — no inline text input. The label provides context like "Settlement date", "Payment date", etc. This reduces errors vs free-text input.
+      </div>
+    </div>
+
+    <!-- Dialog open -->
+    <div class="mockup-card">
+      <div class="mockup-title">Dialog Open</div>
+      <div class="mockup-desc"><span class="tag new">New</span> Clear button + date input for keyboard users</div>
+
+      <div class="form-field">
+        <div class="field-label">Settlement date</div>
+        <button class="btn" style="border-color: var(--brand-600); box-shadow: 0 0 0 3px rgba(127,86,217,.12);">
+          <span class="icon-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          <span class="placeholder-text">Select date</span>
+        </button>
+
+        <div class="dialog">
+          <div class="dialog-body">
+            <div class="clear-row">
+              <button class="btn-link">Clear</button>
+            </div>
+            <div class="cal-header">
+              <button class="cal-nav">&lsaquo;</button>
+              <span class="cal-title">March 2026</span>
+              <button class="cal-nav">&rsaquo;</button>
+            </div>
+            <div class="cal-input-row">
+              <input class="cal-input" value="dd / mm / yyyy" readonly />
+              <button class="btn btn-sm">Today</button>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-day-header">Mo</div><div class="cal-day-header">Tu</div><div class="cal-day-header">We</div><div class="cal-day-header">Th</div><div class="cal-day-header">Fr</div><div class="cal-day-header">Sa</div><div class="cal-day-header">Su</div>
+              <div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day">1</div>
+              <div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div>
+              <div class="cal-day">9</div><div class="cal-day">10</div><div class="cal-day">11</div><div class="cal-day selected">12</div><div class="cal-day">13</div><div class="cal-day">14</div><div class="cal-day">15</div>
+              <div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div>
+              <div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day today">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div>
+              <div class="cal-day">30</div><div class="cal-day">31</div>
+            </div>
+          </div>
+          <div class="dialog-footer">
+            <button class="btn btn-sm">Cancel</button>
+            <button class="btn btn-sm btn-primary">Apply</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ux-note">
+        <strong>UX:</strong> <strong>Clear</strong> button top-right resets selection but keeps dialog open. The date input row allows keyboard entry for accessibility. Today preset jumps to current date.
+      </div>
+    </div>
+  </div>
+
+  <!-- Validation states -->
+  <div class="mockup-row" style="margin-top: 32px;">
+    <div class="mockup-card">
+      <div class="mockup-title">Frontend Validation (inside dialog)</div>
+      <div class="mockup-desc"><span class="tag changed">Changed</span> Error shown after pressing Apply</div>
+
+      <div class="dialog" style="margin-top: 0;">
+        <div class="dialog-body" style="padding-bottom: 12px;">
+          <div class="cal-header">
+            <button class="cal-nav">&lsaquo;</button>
+            <span class="cal-title">March 2026</span>
+            <button class="cal-nav">&rsaquo;</button>
+          </div>
+          <div class="cal-grid" style="margin-top: 8px;">
+            <div class="cal-day-header">Mo</div><div class="cal-day-header">Tu</div><div class="cal-day-header">We</div><div class="cal-day-header">Th</div><div class="cal-day-header">Fr</div><div class="cal-day-header">Sa</div><div class="cal-day-header">Su</div>
+            <div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day">1</div>
+            <div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div>
+            <div class="cal-day">9</div><div class="cal-day">10</div><div class="cal-day">11</div><div class="cal-day">12</div><div class="cal-day">13</div><div class="cal-day">14</div><div class="cal-day">15</div>
+            <div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div>
+            <div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day today">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div>
+            <div class="cal-day">30</div><div class="cal-day">31</div>
+          </div>
+          <div class="dialog-error">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Please select a date before applying.
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button class="btn btn-sm">Cancel</button>
+          <button class="btn btn-sm btn-primary">Apply</button>
+        </div>
+      </div>
+
+      <div class="ux-note">
+        <strong>UX:</strong> Frontend validation appears inline inside the dialog when the user presses Apply without selecting a date. The dialog stays open so they can fix it.
+      </div>
+    </div>
+
+    <div class="mockup-card">
+      <div class="mockup-title">Backend Error (below button)</div>
+      <div class="mockup-desc"><span class="tag changed">Changed</span> Server-side error after form submission</div>
+
+      <div class="form-field">
+        <div class="field-label">Settlement date</div>
+        <button class="btn error-state">
+          <span class="icon-placeholder"><svg viewBox="0 0 24 24" style="stroke: var(--error-500);"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          Mar 12, 2026
+        </button>
+        <div class="field-hint error">Settlement date must be a business day.</div>
+      </div>
+
+      <div class="ux-note">
+        <strong>UX:</strong> After form submission, backend errors appear as hint text below the button with error border — exactly matching how input field errors look. Consistent with the rest of the form system.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== PATTERN 2: SINGLE DATE & TIME ===================== -->
+<div class="section">
+  <h3>Pattern 2 — Single Date & Time (Decoupled)</h3>
+
+  <div class="mockup-row">
+    <div class="mockup-card">
+      <div class="mockup-title">Two Separate Fields</div>
+      <div class="mockup-desc"><span class="tag changed">Changed</span> Date button + time input are independent fields side by side</div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <div class="field-label">Payment date</div>
+          <button class="btn">
+            <span class="icon-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+            Mar 12, 2026
+          </button>
+        </div>
+        <div class="form-field">
+          <div class="field-label">Time</div>
+          <input class="time-input" value="14:30" style="width: 100px; padding: 8px 14px;" />
+        </div>
+      </div>
+
+      <div class="ux-note">
+        <strong>UX:</strong> Date and time are <strong>decoupled</strong>. The date button opens a calendar (date-only, no time inside). The time input is a standard input field — each has its own label. This keeps the calendar dialog simple and allows the time to be optional or pre-filled independently.
+      </div>
+    </div>
+
+    <div class="mockup-card">
+      <div class="mockup-title">Empty State</div>
+      <div class="mockup-desc">Both fields with placeholders</div>
+
+      <div class="form-row">
+        <div class="form-field" style="flex: 1;">
+          <div class="field-label">Payment date</div>
+          <button class="btn" style="width: 100%;">
+            <span class="icon-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+            <span class="placeholder-text">Select date</span>
+          </button>
+        </div>
+        <div class="form-field">
+          <div class="field-label">Time</div>
+          <input class="time-input" placeholder="HH:MM" style="width: 100px; padding: 8px 14px; color: var(--gray-400);" />
+        </div>
+      </div>
+
+      <div class="ux-note">
+        <strong>UX:</strong> When both are empty, each shows its own placeholder independently. The date button shows "Select date", the time input shows "HH:MM". They validate independently too — you could require one without the other.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== PATTERN 3: DATE RANGE ===================== -->
+<div class="section">
+  <h3>Pattern 3 — Date Range Picker</h3>
+
+  <div class="mockup-row">
+    <div class="mockup-card" style="max-width: 600px;">
+      <div class="mockup-title">Range Dialog with Clear</div>
+      <div class="mockup-desc"><span class="tag new">New</span> Clear button added, label above trigger</div>
+
+      <div class="form-field" style="margin-bottom: 8px;">
+        <div class="field-label">Settlement period</div>
+        <button class="btn">
+          <span class="icon-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          <span>Mar 9, 2026</span>
+          <span style="color: var(--gray-400);">–</span>
+          <span>Mar 15, 2026</span>
+        </button>
+      </div>
+
+      <div class="dialog" style="width: 100%;">
+        <div class="dialog-body">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div></div>
+            <button class="btn-link">Clear</button>
+          </div>
+          <div style="display: flex; gap: 24px;">
+            <!-- Month 1 -->
+            <div>
+              <div class="cal-header">
+                <button class="cal-nav">&lsaquo;</button>
+                <span class="cal-title" style="position: absolute; left: 50%; transform: translateX(-80%);">March 2026</span>
+                <div></div>
+              </div>
+              <div class="cal-grid">
+                <div class="cal-day-header">Mo</div><div class="cal-day-header">Tu</div><div class="cal-day-header">We</div><div class="cal-day-header">Th</div><div class="cal-day-header">Fr</div><div class="cal-day-header">Sa</div><div class="cal-day-header">Su</div>
+                <div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day">1</div>
+                <div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div>
+                <div class="cal-day range-start">9</div><div class="cal-day range-bg">10</div><div class="cal-day range-bg">11</div><div class="cal-day range-bg">12</div><div class="cal-day range-bg">13</div><div class="cal-day range-bg">14</div><div class="cal-day range-end">15</div>
+                <div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div>
+                <div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day today">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div>
+                <div class="cal-day">30</div><div class="cal-day">31</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <div style="display: flex; gap: 6px; align-items: center; margin-right: auto;">
+            <input class="cal-input" value="09 / 03 / 2026" style="width: 120px; font-size: 13px;" readonly />
+            <span class="range-dash">–</span>
+            <input class="cal-input" value="15 / 03 / 2026" style="width: 120px; font-size: 13px;" readonly />
+          </div>
+          <button class="btn btn-sm">Cancel</button>
+          <button class="btn btn-sm btn-primary">Apply</button>
+        </div>
+      </div>
+
+      <div class="ux-note">
+        <strong>UX:</strong> Same pattern as before but with <strong>Clear</strong> button and <strong>label</strong> added. The preset sidebar (Last week, This month, etc.) appears on desktop to the left. Date inputs in the footer for keyboard entry. No time inputs here — this is date-only.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== PATTERN 4: DATE & TIME RANGE ===================== -->
+<div class="section">
+  <h3>Pattern 4 — Date & Time Range Picker</h3>
+
+  <div class="mockup-row">
+    <div class="mockup-card" style="max-width: 600px;">
+      <div class="mockup-title">Range with Time (inside dialog)</div>
+      <div class="mockup-desc"><span class="tag">Kept</span> Time stays in the dialog for range pickers — minimise clicks</div>
+
+      <div class="form-field" style="margin-bottom: 8px;">
+        <div class="field-label">Transaction period</div>
+        <button class="btn">
+          <span class="icon-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          <span>Mar 9, 2026 00:00</span>
+          <span style="color: var(--gray-400);">–</span>
+          <span>Mar 15, 2026 23:59</span>
+        </button>
+      </div>
+
+      <div class="dialog" style="width: 100%;">
+        <div class="dialog-body">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div></div>
+            <button class="btn-link">Clear</button>
+          </div>
+          <div class="cal-header">
+            <button class="cal-nav">&lsaquo;</button>
+            <span class="cal-title">March 2026</span>
+            <button class="cal-nav">&rsaquo;</button>
+          </div>
+          <div class="cal-grid">
+            <div class="cal-day-header">Mo</div><div class="cal-day-header">Tu</div><div class="cal-day-header">We</div><div class="cal-day-header">Th</div><div class="cal-day-header">Fr</div><div class="cal-day-header">Sa</div><div class="cal-day-header">Su</div>
+            <div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day muted"></div><div class="cal-day">1</div>
+            <div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div>
+            <div class="cal-day range-start">9</div><div class="cal-day range-bg">10</div><div class="cal-day range-bg">11</div><div class="cal-day range-bg">12</div><div class="cal-day range-bg">13</div><div class="cal-day range-bg">14</div><div class="cal-day range-end">15</div>
+            <div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div>
+            <div class="cal-day">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day today">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div>
+            <div class="cal-day">30</div><div class="cal-day">31</div>
+          </div>
+
+          <!-- Start/End rows with time -->
+          <div style="margin-top: 16px; border-top: 1px solid var(--gray-200); padding-top: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span class="range-label">Start</span>
+              <input class="cal-input" value="09 / 03 / 2026" style="flex: 1; font-size: 13px;" readonly />
+              <input class="time-input" value="00:00" />
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span class="range-label">End</span>
+              <input class="cal-input" value="15 / 03 / 2026" style="flex: 1; font-size: 13px;" readonly />
+              <input class="time-input" value="23:59" />
+            </div>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button class="btn btn-sm" style="flex: 1;">Cancel</button>
+          <button class="btn btn-sm btn-primary" style="flex: 1;">Apply</button>
+        </div>
+      </div>
+
+      <div class="ux-note">
+        <strong>UX:</strong> For range pickers, time <strong>stays inside the dialog</strong> to minimise clicks. The user selects start date, end date, adjusts start time and end time, then hits Apply — all in one flow. Defaults: start time 00:00, end time 23:59 (full day range). Clear resets both dates and times.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ===================== SUMMARY ===================== -->
+<div class="section">
+  <h3>Design Decisions Summary</h3>
+
+  <div class="mockup-card" style="max-width: 700px;">
+    <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+      <thead>
+        <tr style="text-align: left; border-bottom: 2px solid var(--gray-200);">
+          <th style="padding: 8px 12px; color: var(--gray-500); font-weight: 500;">Decision</th>
+          <th style="padding: 8px 12px; color: var(--gray-500); font-weight: 500;">Approach</th>
+          <th style="padding: 8px 12px; color: var(--gray-500); font-weight: 500;">Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--gray-100);">
+          <td style="padding: 10px 12px; font-weight: 500;">Trigger</td>
+          <td style="padding: 10px 12px;">Button (not input)</td>
+          <td style="padding: 10px 12px; color: var(--gray-500);">Prevents free-text entry errors; consistent click target</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--gray-100);">
+          <td style="padding: 10px 12px; font-weight: 500;">Label</td>
+          <td style="padding: 10px 12px;">Above button</td>
+          <td style="padding: 10px 12px; color: var(--gray-500);">Matches input field pattern; provides context</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--gray-100);">
+          <td style="padding: 10px 12px; font-weight: 500;">Clear</td>
+          <td style="padding: 10px 12px;">Inside dialog, keeps open</td>
+          <td style="padding: 10px 12px; color: var(--gray-500);">User can immediately re-select after clearing</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--gray-100);">
+          <td style="padding: 10px 12px; font-weight: 500;">Frontend errors</td>
+          <td style="padding: 10px 12px;">Inside dialog</td>
+          <td style="padding: 10px 12px; color: var(--gray-500);">Error is actionable within the dialog context</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--gray-100);">
+          <td style="padding: 10px 12px; font-weight: 500;">Backend errors</td>
+          <td style="padding: 10px 12px;">Hint text below button</td>
+          <td style="padding: 10px 12px; color: var(--gray-500);">Consistent with form input error pattern</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--gray-100);">
+          <td style="padding: 10px 12px; font-weight: 500;">Single date + time</td>
+          <td style="padding: 10px 12px;">Two separate fields</td>
+          <td style="padding: 10px 12px; color: var(--gray-500);">Keeps calendar simple; time can be optional/independent</td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 12px; font-weight: 500;">Range + time</td>
+          <td style="padding: 10px 12px;">Time inside dialog</td>
+          <td style="padding: 10px 12px; color: var(--gray-500);">Minimises clicks; one flow for start/end date+time</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
