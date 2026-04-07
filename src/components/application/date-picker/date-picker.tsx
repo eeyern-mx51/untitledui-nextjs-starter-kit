@@ -13,15 +13,15 @@ import { Calendar } from "./calendar";
 const highlightedDates = [today(getLocalTimeZone())];
 
 interface DatePickerProps extends AriaDatePickerProps<DateValue> {
-    /** Whether to show Cancel/Apply action buttons. When false, the popover closes on date select. @default true */
-    showActions?: boolean;
+    /** Label displayed above the trigger button. */
+    label?: string;
     /** The function to call when the apply button is clicked. */
     onApply?: () => void;
     /** The function to call when the cancel button is clicked. */
     onCancel?: () => void;
 }
 
-export const DatePicker = ({ value: valueProp, defaultValue, onChange, showActions = true, onApply, onCancel, ...props }: DatePickerProps) => {
+export const DatePicker = ({ label, value: valueProp, defaultValue, onChange, onApply, onCancel, ...props }: DatePickerProps) => {
     const formatter = useDateFormatter({
         month: "short",
         day: "numeric",
@@ -29,35 +29,36 @@ export const DatePicker = ({ value: valueProp, defaultValue, onChange, showActio
     });
     const [value, setValue] = useControlledState(valueProp, defaultValue || null, onChange);
 
-    const formattedDate = value ? formatter.format(value.toDate(getLocalTimeZone())) : "Select date";
+    const formattedDate = value ? formatter.format(value.toDate(getLocalTimeZone())) : undefined;
 
     return (
-        <AriaDatePicker shouldCloseOnSelect={!showActions} {...props} value={value} onChange={setValue}>
-            <AriaGroup>
-                <Button size="md" color="secondary" iconLeading={CalendarIcon}>
-                    {formattedDate}
-                </Button>
-            </AriaGroup>
-            <AriaPopover
-                offset={8}
-                placement="bottom right"
-                className={({ isEntering, isExiting }) =>
-                    cx(
-                        "origin-(--trigger-anchor-point) will-change-transform",
-                        isEntering &&
-                            "duration-150 ease-out animate-in fade-in placement-right:slide-in-from-left-0.5 placement-top:slide-in-from-bottom-0.5 placement-bottom:slide-in-from-top-0.5",
-                        isExiting &&
-                            "duration-100 ease-in animate-out fade-out placement-right:slide-out-to-left-0.5 placement-top:slide-out-to-bottom-0.5 placement-bottom:slide-out-to-top-0.5",
-                    )
-                }
-            >
-                <AriaDialog className="rounded-2xl bg-primary shadow-xl ring ring-secondary_alt">
-                    {({ close }) => (
-                        <>
-                            <div className={cx("flex px-6 py-5", !showActions && "pb-6")}>
-                                <Calendar highlightedDates={highlightedDates} />
-                            </div>
-                            {showActions && (
+        <div className="flex flex-col gap-1.5">
+            {label && <label className="text-sm font-medium text-secondary">{label}</label>}
+            <AriaDatePicker shouldCloseOnSelect={false} {...props} value={value} onChange={setValue}>
+                <AriaGroup>
+                    <Button size="md" color="secondary" iconLeading={CalendarIcon}>
+                        {formattedDate ?? <span className="text-placeholder">Select date</span>}
+                    </Button>
+                </AriaGroup>
+                <AriaPopover
+                    offset={8}
+                    placement="bottom start"
+                    className={({ isEntering, isExiting }) =>
+                        cx(
+                            "origin-(--trigger-anchor-point) will-change-transform",
+                            isEntering &&
+                                "duration-150 ease-out animate-in fade-in placement-right:slide-in-from-left-0.5 placement-top:slide-in-from-bottom-0.5 placement-bottom:slide-in-from-top-0.5",
+                            isExiting &&
+                                "duration-100 ease-in animate-out fade-out placement-right:slide-out-to-left-0.5 placement-top:slide-out-to-bottom-0.5 placement-bottom:slide-out-to-top-0.5",
+                        )
+                    }
+                >
+                    <AriaDialog className="rounded-2xl bg-primary shadow-xl ring ring-secondary_alt">
+                        {({ close }) => (
+                            <>
+                                <div className="flex px-6 py-5">
+                                    <Calendar highlightedDates={highlightedDates} />
+                                </div>
                                 <div className="grid grid-cols-2 gap-3 border-t border-secondary p-4">
                                     <Button
                                         size="md"
@@ -80,11 +81,11 @@ export const DatePicker = ({ value: valueProp, defaultValue, onChange, showActio
                                         Apply
                                     </Button>
                                 </div>
-                            )}
-                        </>
-                    )}
-                </AriaDialog>
-            </AriaPopover>
-        </AriaDatePicker>
+                            </>
+                        )}
+                    </AriaDialog>
+                </AriaPopover>
+            </AriaDatePicker>
+        </div>
     );
 };

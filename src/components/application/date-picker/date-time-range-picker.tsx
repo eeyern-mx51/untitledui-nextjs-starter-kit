@@ -12,7 +12,7 @@ import {
     today,
     Time,
 } from "@internationalized/date";
-import { Calendar as CalendarIcon, Clock } from "@untitledui/icons";
+import { Calendar as CalendarIcon } from "@untitledui/icons";
 import { useDateFormatter } from "react-aria";
 import type { DateRangePickerProps as AriaDateRangePickerProps, DateValue, TimeValue } from "react-aria-components";
 import {
@@ -38,14 +38,14 @@ interface DateTimeRange {
 }
 
 interface DateTimeRangePickerProps extends Omit<AriaDateRangePickerProps<DateValue>, "value" | "defaultValue" | "onChange"> {
+    /** Label displayed above the trigger button. */
+    label?: string;
     /** The controlled value of the date time range picker. */
     value?: DateTimeRange | null;
     /** The default value (uncontrolled). */
     defaultValue?: DateTimeRange | null;
     /** Called when the value changes. */
     onChange?: (value: DateTimeRange | null) => void;
-    /** Whether to show Cancel/Apply action buttons and date/time inputs in the footer. @default true */
-    showActions?: boolean;
     /** Force single month view even on desktop. @default false */
     singleMonth?: boolean;
     /** The function to call when the apply button is clicked. */
@@ -59,12 +59,14 @@ const toDateTime = (date: DateValue, hour = 0, minute = 0): CalendarDateTime => 
     return new CalendarDateTime(date.year, date.month, date.day, hour, minute);
 };
 
-export const DateTimeRangePicker = ({ value, defaultValue, onChange, showActions = true, singleMonth = false, onApply, onCancel, ...props }: DateTimeRangePickerProps) => {
+export const DateTimeRangePicker = ({ label, value, defaultValue, onChange, singleMonth = false, onApply, onCancel, ...props }: DateTimeRangePickerProps) => {
     const { locale } = useLocale();
-    const formatter = useDateFormatter({
+    const dateFormatter = useDateFormatter({
         month: "short",
         day: "numeric",
         year: "numeric",
+    });
+    const timeFormatter = useDateFormatter({
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
@@ -84,10 +86,14 @@ export const DateTimeRangePicker = ({ value, defaultValue, onChange, showActions
         [value, onChange],
     );
 
-    const formattedStartDate = dateTimeValue?.start ? formatter.format(dateTimeValue.start.toDate(getLocalTimeZone())) : "Select date & time";
-    const formattedEndDate = dateTimeValue?.end ? formatter.format(dateTimeValue.end.toDate(getLocalTimeZone())) : "Select date & time";
+    const formattedStart = dateTimeValue?.start
+        ? `${dateFormatter.format(dateTimeValue.start.toDate(getLocalTimeZone()))} ${timeFormatter.format(dateTimeValue.start.toDate(getLocalTimeZone()))}`
+        : undefined;
+    const formattedEnd = dateTimeValue?.end
+        ? `${dateFormatter.format(dateTimeValue.end.toDate(getLocalTimeZone()))} ${timeFormatter.format(dateTimeValue.end.toDate(getLocalTimeZone()))}`
+        : undefined;
 
-    // Extract date-only range for the calendar (must be CalendarDate, not CalendarDateTime, so DateInput only shows date segments)
+    // Extract date-only range for the calendar
     const calendarValue = dateTimeValue
         ? {
               start: new CalendarDate(dateTimeValue.start.year, dateTimeValue.start.month, dateTimeValue.start.day) as DateValue,
@@ -112,7 +118,6 @@ export const DateTimeRangePicker = ({ value, defaultValue, onChange, showActions
         });
     };
 
-    // Handle start time change
     const handleStartTimeChange = (newTime: TimeValue | null) => {
         if (!newTime || !dateTimeValue) return;
         setDateTimeValue({
@@ -121,13 +126,16 @@ export const DateTimeRangePicker = ({ value, defaultValue, onChange, showActions
         });
     };
 
-    // Handle end time change
     const handleEndTimeChange = (newTime: TimeValue | null) => {
         if (!newTime || !dateTimeValue) return;
         setDateTimeValue({
             ...dateTimeValue,
             end: dateTimeValue.end.set({ hour: newTime.hour, minute: newTime.minute }) as CalendarDateTime,
         });
+    };
+
+    const handleClear = () => {
+        setDateTimeValue(null);
     };
 
     const startTimeValue = dateTimeValue?.start ? new Time(dateTimeValue.start.hour, dateTimeValue.start.minute) : null;
@@ -183,64 +191,68 @@ export const DateTimeRangePicker = ({ value, defaultValue, onChange, showActions
     };
 
     return (
-        <AriaDateRangePicker
-            aria-label="Date and time range picker"
-            shouldCloseOnSelect={false}
-            {...props}
-            value={calendarValue}
-            onChange={handleCalendarChange}
-        >
-            <AriaGroup>
-                <Button size="md" color="secondary" iconLeading={CalendarIcon}>
-                    {!dateTimeValue ? (
-                        <span className="text-placeholder">Select dates & times</span>
-                    ) : (
-                        `${formattedStartDate} – ${formattedEndDate}`
-                    )}
-                </Button>
-            </AriaGroup>
-            <AriaPopover
-                placement="bottom right"
-                offset={8}
-                className={({ isEntering, isExiting }) =>
-                    cx(
-                        "origin-(--trigger-anchor-point) will-change-transform",
-                        isEntering &&
-                            "duration-150 ease-out animate-in fade-in placement-right:slide-in-from-left-0.5 placement-top:slide-in-from-bottom-0.5 placement-bottom:slide-in-from-top-0.5",
-                        isExiting &&
-                            "duration-100 ease-in animate-out fade-out placement-right:slide-out-to-left-0.5 placement-top:slide-out-to-bottom-0.5 placement-bottom:slide-out-to-top-0.5",
-                    )
-                }
+        <div className="flex flex-col gap-1.5">
+            {label && <label className="text-sm font-medium text-secondary">{label}</label>}
+            <AriaDateRangePicker
+                aria-label="Date and time range picker"
+                shouldCloseOnSelect={false}
+                {...props}
+                value={calendarValue}
+                onChange={handleCalendarChange}
             >
-                <AriaDialog className="flex rounded-2xl bg-primary shadow-xl ring ring-secondary_alt focus:outline-hidden">
-                    {({ close }) => (
-                        <>
-                            <div className={cx("hidden w-38 flex-col gap-0.5 border-r border-solid border-secondary p-3", !singleMonth && "lg:flex")}>
-                                {Object.values(presets).map((preset) => (
-                                    <RangePresetButton
-                                        key={preset.label}
-                                        value={preset.value}
-                                        onClick={() => handlePresetClick(preset.value)}
-                                    >
-                                        {preset.label}
-                                    </RangePresetButton>
-                                ))}
-                            </div>
-                            <div className="flex flex-col">
-                                <RangeCalendar
-                                    focusedValue={focusedValue}
-                                    onFocusChange={setFocusedValue}
-                                    highlightedDates={highlightedDates}
-                                    singleMonth={singleMonth}
-                                    presets={{
-                                        lastWeek: presets.lastWeek,
-                                        lastMonth: presets.lastMonth,
-                                        lastYear: presets.lastYear,
-                                    }}
-                                />
-                                {showActions && (
-                                    <>
-                                        {singleMonth && (
+                <AriaGroup>
+                    <Button size="md" color="secondary" iconLeading={CalendarIcon}>
+                        {!dateTimeValue ? (
+                            <span className="text-placeholder">Select date/time range</span>
+                        ) : (
+                            `${formattedStart} – ${formattedEnd}`
+                        )}
+                    </Button>
+                </AriaGroup>
+                <AriaPopover
+                    placement="bottom start"
+                    offset={8}
+                    className={({ isEntering, isExiting }) =>
+                        cx(
+                            "origin-(--trigger-anchor-point) will-change-transform",
+                            isEntering &&
+                                "duration-150 ease-out animate-in fade-in placement-right:slide-in-from-left-0.5 placement-top:slide-in-from-bottom-0.5 placement-bottom:slide-in-from-top-0.5",
+                            isExiting &&
+                                "duration-100 ease-in animate-out fade-out placement-right:slide-out-to-left-0.5 placement-top:slide-out-to-bottom-0.5 placement-bottom:slide-out-to-top-0.5",
+                        )
+                    }
+                >
+                    <AriaDialog className="flex rounded-2xl bg-primary shadow-xl ring ring-secondary_alt focus:outline-hidden">
+                        {({ close }) => (
+                            <>
+                                {/* Desktop preset sidebar — only for dual month view */}
+                                <div className={cx("hidden w-38 flex-col gap-0.5 border-r border-solid border-secondary p-3", !singleMonth && "lg:flex")}>
+                                    {Object.values(presets).map((preset) => (
+                                        <RangePresetButton
+                                            key={preset.label}
+                                            value={preset.value}
+                                            onClick={() => handlePresetClick(preset.value)}
+                                        >
+                                            {preset.label}
+                                        </RangePresetButton>
+                                    ))}
+                                </div>
+                                <div className="flex flex-col">
+                                    <RangeCalendar
+                                        focusedValue={focusedValue}
+                                        onFocusChange={setFocusedValue}
+                                        highlightedDates={highlightedDates}
+                                        singleMonth={singleMonth}
+                                        presets={{
+                                            lastWeek: presets.lastWeek,
+                                            lastMonth: presets.lastMonth,
+                                            lastYear: presets.lastYear,
+                                        }}
+                                    />
+
+                                    {/* Single month footer: Start/End rows with date+time, then Cancel/Apply */}
+                                    {singleMonth && (
+                                        <>
                                             <div className="flex flex-col gap-3 border-t border-secondary px-4 pt-4">
                                                 <div className="flex items-center gap-3">
                                                     <span className="w-10 text-sm font-semibold text-brand-secondary">Start</span>
@@ -263,32 +275,7 @@ export const DateTimeRangePicker = ({ value, defaultValue, onChange, showActions
                                                     />
                                                 </div>
                                             </div>
-                                        )}
-                                        <div className={cx("flex justify-between gap-3 border-t border-secondary p-4", singleMonth && "border-t-0")}>
-                                            {!singleMonth && (
-                                                <div className="hidden items-center gap-3 md:flex">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <DateInput slot="start" className="w-36" />
-                                                        <TimeInput
-                                                            aria-label="Start time"
-                                                            value={startTimeValue}
-                                                            onChange={handleStartTimeChange}
-                                                            className="w-[4.5rem]"
-                                                        />
-                                                    </div>
-                                                    <div className="text-md text-quaternary">–</div>
-                                                    <div className="flex items-center gap-1.5">
-                                                        <DateInput slot="end" className="w-36" />
-                                                        <TimeInput
-                                                            aria-label="End time"
-                                                            value={endTimeValue}
-                                                            onChange={handleEndTimeChange}
-                                                            className="w-[4.5rem]"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            )}
-                                            <div className="grid w-full grid-cols-2 gap-3 md:flex md:w-auto">
+                                            <div className="grid grid-cols-2 gap-3 p-4">
                                                 <Button
                                                     size="md"
                                                     color="secondary"
@@ -310,14 +297,76 @@ export const DateTimeRangePicker = ({ value, defaultValue, onChange, showActions
                                                     Apply
                                                 </Button>
                                             </div>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </>
-                    )}
-                </AriaDialog>
-            </AriaPopover>
-        </AriaDateRangePicker>
+                                        </>
+                                    )}
+
+                                    {/* Dual month footer: Start/End date+time rows, then Clear + Cancel/Apply */}
+                                    {!singleMonth && (
+                                        <>
+                                            {/* Start/End rows — visible on desktop */}
+                                            <div className="hidden flex-col gap-3 border-t border-secondary px-4 pt-4 lg:flex">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="w-10 text-sm font-semibold text-brand-secondary">Start</span>
+                                                    <DateInput slot="start" className="flex-1" />
+                                                    <TimeInput
+                                                        aria-label="Start time"
+                                                        value={startTimeValue}
+                                                        onChange={handleStartTimeChange}
+                                                        className="w-[4.5rem]"
+                                                    />
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="w-10 text-sm font-semibold text-brand-secondary">End</span>
+                                                    <DateInput slot="end" className="flex-1" />
+                                                    <TimeInput
+                                                        aria-label="End time"
+                                                        value={endTimeValue}
+                                                        onChange={handleEndTimeChange}
+                                                        className="w-[4.5rem]"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center justify-between gap-3 border-t border-secondary p-4 lg:border-t-0">
+                                                <Button
+                                                    slot={null}
+                                                    size="md"
+                                                    color="link-gray"
+                                                    className="hidden lg:flex"
+                                                    onClick={handleClear}
+                                                >
+                                                    Clear
+                                                </Button>
+                                                <div className="grid w-full grid-cols-2 gap-3 lg:flex lg:w-auto">
+                                                    <Button
+                                                        size="md"
+                                                        color="secondary"
+                                                        onClick={() => {
+                                                            onCancel?.();
+                                                            close();
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                    <Button
+                                                        size="md"
+                                                        color="primary"
+                                                        onClick={() => {
+                                                            onApply?.();
+                                                            close();
+                                                        }}
+                                                    >
+                                                        Apply
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </AriaDialog>
+                </AriaPopover>
+            </AriaDateRangePicker>
+        </div>
     );
 };

@@ -14,21 +14,23 @@ import { TimeInput } from "./time-input";
 const highlightedDates = [today(getLocalTimeZone())];
 
 interface DateTimePickerProps extends Omit<AriaDatePickerProps<DateValue>, "value" | "defaultValue" | "onChange"> {
+    /** Label displayed above the date field. */
+    label?: string;
+    /** Label displayed above the time field. */
+    timeLabel?: string;
     /** The controlled value of the date time picker. */
     value?: CalendarDateTime | null;
     /** The default value of the date time picker (uncontrolled). */
     defaultValue?: CalendarDateTime | null;
     /** Called when the value changes. */
     onChange?: (value: CalendarDateTime | null) => void;
-    /** Whether to show Cancel/Apply action buttons. @default true */
-    showActions?: boolean;
     /** The function to call when the apply button is clicked. */
     onApply?: () => void;
     /** The function to call when the cancel button is clicked. */
     onCancel?: () => void;
 }
 
-export const DateTimePicker = ({ value, defaultValue, onChange, showActions = true, onApply, onCancel, ...props }: DateTimePickerProps) => {
+export const DateTimePicker = ({ label = "Date", timeLabel = "Time", value, defaultValue, onChange, onApply, onCancel, ...props }: DateTimePickerProps) => {
     const [internalValue, setInternalValue] = useState<CalendarDateTime | null>(defaultValue ?? null);
 
     const dateTimeValue = value !== undefined ? value : internalValue;
@@ -42,18 +44,15 @@ export const DateTimePicker = ({ value, defaultValue, onChange, showActions = tr
         [value, onChange],
     );
 
-    const formatter = useDateFormatter({
+    const dateFormatter = useDateFormatter({
         month: "short",
         day: "numeric",
         year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
     });
 
-    const formattedDate = dateTimeValue ? formatter.format(dateTimeValue.toDate(getLocalTimeZone())) : "Select date & time";
+    const formattedDate = dateTimeValue ? dateFormatter.format(dateTimeValue.toDate(getLocalTimeZone())) : undefined;
 
-    // Extract date-only value for the calendar (must be CalendarDate, not CalendarDateTime, so DateInput only shows date segments)
+    // Extract date-only value for the calendar
     const calendarValue: CalendarDate | null = dateTimeValue
         ? new CalendarDate(dateTimeValue.year, dateTimeValue.month, dateTimeValue.day)
         : null;
@@ -70,81 +69,91 @@ export const DateTimePicker = ({ value, defaultValue, onChange, showActions = tr
         setDateTimeValue(newDateTime);
     };
 
-    // Handle time change: preserve date when time changes
+    // Handle time change: preserve date when time changes, default to today if no date
     const handleTimeChange = (newTime: TimeValue | null) => {
-        if (!newTime || !dateTimeValue) return;
-        const newDateTime = dateTimeValue.set({ hour: newTime.hour, minute: newTime.minute });
-        setDateTimeValue(newDateTime as CalendarDateTime);
+        if (!newTime) return;
+        if (dateTimeValue) {
+            const newDateTime = dateTimeValue.set({ hour: newTime.hour, minute: newTime.minute });
+            setDateTimeValue(newDateTime as CalendarDateTime);
+        } else {
+            const t = today(getLocalTimeZone());
+            setDateTimeValue(new CalendarDateTime(t.year, t.month, t.day, newTime.hour, newTime.minute));
+        }
     };
 
     // Extract Time value for the TimeInput
     const timeValue = dateTimeValue ? new Time(dateTimeValue.hour, dateTimeValue.minute) : null;
 
     return (
-        <AriaDatePicker
-            aria-label="Date and time picker"
-            shouldCloseOnSelect={false}
-            {...props}
-            value={calendarValue}
-            onChange={handleCalendarChange}
-        >
-            <AriaGroup>
-                <Button size="md" color="secondary" iconLeading={CalendarIcon}>
-                    {formattedDate}
-                </Button>
-            </AriaGroup>
-            <AriaPopover
-                offset={8}
-                placement="bottom right"
-                className={({ isEntering, isExiting }) =>
-                    cx(
-                        "origin-(--trigger-anchor-point) will-change-transform",
-                        isEntering &&
-                            "duration-150 ease-out animate-in fade-in placement-right:slide-in-from-left-0.5 placement-top:slide-in-from-bottom-0.5 placement-bottom:slide-in-from-top-0.5",
-                        isExiting &&
-                            "duration-100 ease-in animate-out fade-out placement-right:slide-out-to-left-0.5 placement-top:slide-out-to-bottom-0.5 placement-bottom:slide-out-to-top-0.5",
-                    )
-                }
-            >
-                <AriaDialog className="rounded-2xl bg-primary shadow-xl ring ring-secondary_alt">
-                    {({ close }) => (
-                        <>
-                            <div className={cx("flex px-6 py-5", !showActions && "pb-6")}>
-                                <Calendar
-                                    highlightedDates={highlightedDates}
-                                    trailingAddon={
-                                        <TimeInput aria-label="Select time" value={timeValue} onChange={handleTimeChange} />
-                                    }
-                                />
-                            </div>
-                            {showActions && (
-                                <div className="grid grid-cols-2 gap-3 border-t border-secondary p-4">
-                                    <Button
-                                        size="md"
-                                        color="secondary"
-                                        onClick={() => {
-                                            onCancel?.();
-                                            close();
-                                        }}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        size="md"
-                                        color="primary"
-                                        onClick={() => {
-                                            onApply?.();
-                                            close();
-                                        }}
-                                    >
-                                        Apply
-                                    </Button>
-                                </div>
+        <div className="flex gap-4">
+            {/* Date field */}
+            <div className="flex flex-col gap-1.5">
+                {label && <label className="text-sm font-medium text-secondary">{label}</label>}
+                <AriaDatePicker
+                    aria-label="Date picker"
+                    shouldCloseOnSelect={false}
+                    {...props}
+                    value={calendarValue}
+                    onChange={handleCalendarChange}
+                >
+                    <AriaGroup>
+                        <Button size="md" color="secondary" iconLeading={CalendarIcon}>
+                            {formattedDate ?? <span className="text-placeholder">Select date</span>}
+                        </Button>
+                    </AriaGroup>
+                    <AriaPopover
+                        offset={8}
+                        placement="bottom start"
+                        className={({ isEntering, isExiting }) =>
+                            cx(
+                                "origin-(--trigger-anchor-point) will-change-transform",
+                                isEntering &&
+                                    "duration-150 ease-out animate-in fade-in placement-right:slide-in-from-left-0.5 placement-top:slide-in-from-bottom-0.5 placement-bottom:slide-in-from-top-0.5",
+                                isExiting &&
+                                    "duration-100 ease-in animate-out fade-out placement-right:slide-out-to-left-0.5 placement-top:slide-out-to-bottom-0.5 placement-bottom:slide-out-to-top-0.5",
+                            )
+                        }
+                    >
+                        <AriaDialog className="rounded-2xl bg-primary shadow-xl ring ring-secondary_alt">
+                            {({ close }) => (
+                                <>
+                                    <div className="flex px-6 py-5">
+                                        <Calendar highlightedDates={highlightedDates} />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3 border-t border-secondary p-4">
+                                        <Button
+                                            size="md"
+                                            color="secondary"
+                                            onClick={() => {
+                                                onCancel?.();
+                                                close();
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            size="md"
+                                            color="primary"
+                                            onClick={() => {
+                                                onApply?.();
+                                                close();
+                                            }}
+                                        >
+                                            Apply
+                                        </Button>
+                                    </div>
+                                </>
                             )}
-                        </>
-                    )}
-                </AriaDialog>
-            </AriaPopover>
-        </AriaDatePicker>
+                        </AriaDialog>
+                    </AriaPopover>
+                </AriaDatePicker>
+            </div>
+
+            {/* Time field — separate standalone input */}
+            <div className="flex flex-col gap-1.5">
+                {timeLabel && <label className="text-sm font-medium text-secondary">{timeLabel}</label>}
+                <TimeInput aria-label="Select time" value={timeValue} onChange={handleTimeChange} />
+            </div>
+        </div>
     );
 };

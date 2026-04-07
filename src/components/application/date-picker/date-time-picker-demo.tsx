@@ -3,7 +3,6 @@
 import { DatePicker } from "./date-picker";
 import { DateRangePicker } from "./date-range-picker";
 import { DateTimePicker } from "./date-time-picker";
-import { DateTimePickerSlots } from "./date-time-picker-slots";
 import { DateTimeRangePicker } from "./date-time-range-picker";
 
 const Divider = () => <div className="h-px w-full bg-border-secondary" />;
@@ -28,36 +27,32 @@ export const DateTimePickerDemo = () => {
 
             <h3 className="text-md font-semibold text-brand-secondary">Single Month View</h3>
 
-            <Section title="1. Date Picker" description="Single date selection with actions.">
-                <DatePicker onApply={() => {}} onCancel={() => {}} />
+            <Section title="1. Date Picker" description="Single date selection with label and Cancel/Apply actions.">
+                <DatePicker label="Date" onApply={() => {}} onCancel={() => {}} />
             </Section>
 
-            <Section title="2. Date & Time Picker" description="Single date and time selection with actions.">
-                <DateTimePicker onApply={() => {}} onCancel={() => {}} />
+            <Section title="2. Date & Time Picker" description="Decoupled date and time as two separate fields side by side.">
+                <DateTimePicker label="Date" timeLabel="Time" onApply={() => {}} onCancel={() => {}} />
             </Section>
 
-            <Section title="3. Date Range Picker (single month)" description="Date range selection in single month view.">
-                <DateRangePicker singleMonth onApply={() => {}} onCancel={() => {}} />
+            <Section title="3. Date Range Picker (single month)" description="Date range selection with preset links, Start/End date inputs, and Cancel/Apply.">
+                <DateRangePicker label="Date" singleMonth onApply={() => {}} onCancel={() => {}} />
             </Section>
 
-            <Section title="4. Date & Time Range Picker (single month)" description="Date and time range selection in single month view.">
-                <DateTimeRangePicker singleMonth onApply={() => {}} onCancel={() => {}} />
-            </Section>
-
-            <Section title="5. Date & Time Picker — Time Slots" description="Date and time selection with scrollable time slot panel on desktop and dropdown on mobile.">
-                <DateTimePickerSlots onApply={() => {}} onCancel={() => {}} />
+            <Section title="4. Date & Time Range Picker (single month)" description="Date and time range selection with Start/End rows including time inputs.">
+                <DateTimeRangePicker label="Date and time" singleMonth onApply={() => {}} onCancel={() => {}} />
             </Section>
 
             <Divider />
 
             <h3 className="text-md font-semibold text-brand-secondary">Dual Month View</h3>
 
-            <Section title="6. Date Range Picker (dual month)" description="Date range with preset sidebar and dual calendar.">
-                <DateRangePicker onApply={() => {}} onCancel={() => {}} />
+            <Section title="5. Date Range Picker (dual month)" description="Date range with preset sidebar, dual calendar, Clear link, and footer date inputs.">
+                <DateRangePicker label="Date" onApply={() => {}} onCancel={() => {}} />
             </Section>
 
-            <Section title="7. Date & Time Range Picker (dual month)" description="Date and time range with preset sidebar and dual calendar.">
-                <DateTimeRangePicker onApply={() => {}} onCancel={() => {}} />
+            <Section title="6. Date & Time Range Picker (dual month)" description="Date and time range with preset sidebar, dual calendar, Start/End date+time rows, and Clear link.">
+                <DateTimeRangePicker label="Date and time" onApply={() => {}} onCancel={() => {}} />
             </Section>
         </div>
     );
