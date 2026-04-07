@@ -300,14 +300,14 @@ export const DateTimeRangePicker = ({ label, value, defaultValue, onChange, sing
                                         </>
                                     )}
 
-                                    {/* Dual month footer: Start/End date+time rows, then Clear + Cancel/Apply */}
+                                    {/* Dual month footer: Start/End on one row, then Clear + Cancel/Apply */}
                                     {!singleMonth && (
                                         <>
-                                            {/* Start/End rows — visible on desktop */}
-                                            <div className="hidden flex-col gap-3 border-t border-secondary px-4 pt-4 lg:flex">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="w-10 text-sm font-semibold text-brand-secondary">Start</span>
-                                                    <DateInput slot="start" className="flex-1" />
+                                            {/* Start + End on a single horizontal row — visible on desktop */}
+                                            <div className="hidden items-center gap-4 border-t border-secondary px-4 pt-4 lg:flex">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-semibold text-brand-secondary">Start</span>
+                                                    <DateInput slot="start" className="w-36" />
                                                     <TimeInput
                                                         aria-label="Start time"
                                                         value={startTimeValue}
@@ -315,9 +315,9 @@ export const DateTimeRangePicker = ({ label, value, defaultValue, onChange, sing
                                                         className="w-[4.5rem]"
                                                     />
                                                 </div>
-                                                <div className="flex items-center gap-3">
-                                                    <span className="w-10 text-sm font-semibold text-brand-secondary">End</span>
-                                                    <DateInput slot="end" className="flex-1" />
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-semibold text-brand-secondary">End</span>
+                                                    <DateInput slot="end" className="w-36" />
                                                     <TimeInput
                                                         aria-label="End time"
                                                         value={endTimeValue}
