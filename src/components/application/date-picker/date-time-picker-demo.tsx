@@ -10,37 +10,20 @@ import { DateTimeRangePicker } from "./date-time-range-picker";
 
 const Divider = () => <div className="h-px w-full bg-border-secondary" />;
 
-const UxNote = ({ children }: { children: ReactNode }) => (
-    <div className="rounded-lg border border-[#FEDF89] bg-[#FFFAEB] px-4 py-3 text-sm leading-relaxed text-tertiary">{children}</div>
-);
-
-const UsageList = ({ items }: { items: { area: string; example: string }[] }) => (
-    <div className="flex flex-col gap-2">
-        {items.map((item) => (
-            <div key={item.area} className="flex gap-3 text-sm">
-                <span className="shrink-0 font-medium text-brand-secondary">{item.area}</span>
-                <span className="text-tertiary">{item.example}</span>
-            </div>
-        ))}
-    </div>
-);
-
 const VariantSection = ({
     number,
     title,
     description,
-    usage,
-    notes,
+    whenToUse,
     children,
 }: {
     number: number;
     title: string;
     description: string;
-    usage: { area: string; example: string }[];
-    notes: string;
+    whenToUse: string;
     children: ReactNode;
 }) => (
-    <div className="flex w-full flex-col gap-6">
+    <div className="flex w-full flex-col gap-5">
         <div>
             <h2 className="text-lg font-semibold text-primary">
                 {number}. {title}
@@ -51,14 +34,11 @@ const VariantSection = ({
         {/* Live component */}
         <div className="rounded-2xl border border-secondary bg-primary p-6">{children}</div>
 
-        {/* Where to use it */}
-        <div>
-            <h3 className="mb-2 text-sm font-semibold text-secondary">Where to use in the product</h3>
-            <UsageList items={usage} />
+        {/* When to use */}
+        <div className="rounded-lg border border-tertiary bg-secondary px-4 py-3 text-sm leading-relaxed text-secondary">
+            <span className="font-semibold text-primary">When to use: </span>
+            {whenToUse}
         </div>
-
-        {/* UX note */}
-        <UxNote>{notes}</UxNote>
     </div>
 );
 
@@ -108,119 +88,83 @@ export const DateTimePickerDemo = () => {
             <div>
                 <h1 className="text-display-xs font-semibold text-primary">Date & Time Pickers</h1>
                 <p className="mt-2 text-md text-tertiary">
-                    All picker variants with usage guidance for the Support and Merchant Dashboard.
+                    All picker variants with usage guidance for when to reach for each one.
                 </p>
             </div>
 
-            {/* ─── Variant 1: Single Date ─────────────────────────────────── */}
+            {/* ─── 1: Date Picker ─────────────────────────────────────────── */}
             <VariantSection
                 number={1}
                 title="Date Picker"
-                description="Selects a single date. Opens a calendar dialog with a date input row, Today preset, and Cancel/Apply actions."
-                usage={[
-                    { area: "Merchant Dashboard", example: "Settlement date filter — pick a specific payout date" },
-                    { area: "Merchant Dashboard", example: "Invoice due date — set the due date when creating an invoice" },
-                    { area: "Support Dashboard", example: "Incident date — log the exact date a reported issue occurred" },
-                    { area: "Support Dashboard", example: "Follow-up date — schedule a callback or follow-up for a ticket" },
-                ]}
-                notes="Use when only a single calendar date is needed and time is irrelevant. The button trigger prevents free-text entry errors. The Today preset allows quick selection of the current date."
+                description="Selects a single date. Calendar dialog with date input, Today preset, and Cancel/Apply."
+                whenToUse="The user needs to pick one specific day and time doesn't matter. Due dates, start dates, birth dates, expiry dates — any form field that expects a calendar date."
             >
-                <DatePicker label="Settlement date" />
+                <DatePicker label="Date" />
             </VariantSection>
 
             <Divider />
 
-            {/* ─── Variant 2: Date & Time ─────────────────────────────────── */}
+            {/* ─── 2: Date & Time Picker ──────────────────────────────────── */}
             <VariantSection
                 number={2}
                 title="Date & Time Picker"
-                description="Two separate side-by-side fields — a date picker button and a standalone time input. The calendar dialog is date-only; time is entered independently."
-                usage={[
-                    { area: "Merchant Dashboard", example: "Scheduled payment — set the exact date and time a payment should be processed" },
-                    { area: "Merchant Dashboard", example: "Promotion start — define when a discount or offer goes live" },
-                    { area: "Support Dashboard", example: "Incident timestamp — record the precise date and time an issue was reported" },
-                    { area: "Support Dashboard", example: "Maintenance window — set when a planned maintenance begins" },
-                ]}
-                notes="Use when a specific moment in time matters (not just the day). Date and time are decoupled so they can be filled independently — time can be optional or pre-filled with a default. The calendar stays simple without time controls inside it."
+                description="Two separate side-by-side fields — a date picker button and a standalone time input. The calendar dialog is date-only."
+                whenToUse="The user needs to specify a moment in time, not just a day. Scheduling, deadlines with a cutoff time, or any input where hours and minutes matter alongside the date. The decoupled layout means time can be optional or pre-filled independently."
             >
-                <DateTimePicker label="Payment date" timeLabel="Time" />
+                <DateTimePicker label="Date" timeLabel="Time" />
             </VariantSection>
 
             <Divider />
 
-            {/* ─── Variant 3: Date Range (single month) ───────────────────── */}
+            {/* ─── 3: Date Range (single month) ───────────────────────────── */}
             <VariantSection
                 number={3}
-                title="Date Range Picker (single month)"
-                description="Selects a start and end date. Shows a single calendar month with preset links (Last week, Last month, Last year), stacked Start/End date inputs, and Cancel/Apply."
-                usage={[
-                    { area: "Merchant Dashboard", example: "Mobile transaction history — filter payments within a date range on smaller screens" },
-                    { area: "Merchant Dashboard", example: "Payout period filter — narrow down settlements to a specific week or month" },
-                    { area: "Support Dashboard", example: "Ticket search — find tickets created within a specific period on tablet/mobile" },
-                    { area: "Support Dashboard", example: "SLA reporting — select the review period for response time metrics" },
-                ]}
-                notes="Use for date range selection on mobile or narrow viewports. Preset links give quick access to common ranges. Start/End inputs in the footer allow keyboard-driven date entry. No time selection — date-only."
+                title="Date Range Picker — Single Month"
+                description="Start and end date selection. Single calendar month with preset links, stacked Start/End date inputs, and Cancel/Apply."
+                whenToUse="The user needs to define a period of time (date-only) and the viewport is narrow — mobile, tablet, or a compact sidebar filter. Preset links give quick access to common ranges like last week or last month."
             >
                 <DateRangePicker label="Date" singleMonth />
             </VariantSection>
 
             <Divider />
 
-            {/* ─── Variant 4: Date Range (dual month) ─────────────────────── */}
+            {/* ─── 4: Date Range (dual month) ─────────────────────────────── */}
             <VariantSection
                 number={4}
-                title="Date Range Picker (dual month)"
-                description="Desktop layout with a preset sidebar (Today through All time), two visible calendar months, date inputs in the footer, and a Clear link."
-                usage={[
-                    { area: "Merchant Dashboard", example: "Revenue reporting — select a custom date range for sales or settlement reports" },
-                    { area: "Merchant Dashboard", example: "Dispute period — filter chargebacks and disputes by date range" },
-                    { area: "Support Dashboard", example: "Analytics dashboard — set the time window for ticket volume, CSAT, or resolution charts" },
-                    { area: "Support Dashboard", example: "Audit log — browse system events within a specific period" },
-                ]}
-                notes="Use on desktop when the user needs to see two months at once for easier range selection. The preset sidebar provides one-click access to common ranges. Clear resets the selection without closing the dialog."
+                title="Date Range Picker — Dual Month"
+                description="Desktop layout with preset sidebar, two visible calendar months, date inputs in the footer, and a Clear link."
+                whenToUse="Same as above but on desktop where there's room for two months. The dual calendar makes it easier to select ranges that span across months. The preset sidebar provides one-click access to common periods. Use this as the default range picker on wider screens."
             >
                 <DateRangePicker label="Date" />
             </VariantSection>
 
             <Divider />
 
-            {/* ─── Variant 5: Date & Time Range (single month) ────────────── */}
+            {/* ─── 5: Date & Time Range (single month) ────────────────────── */}
             <VariantSection
                 number={5}
-                title="Date & Time Range Picker (single month)"
-                description="Selects a start and end date+time. Single calendar month with Start/End rows containing both date and time inputs, plus Cancel/Apply."
-                usage={[
-                    { area: "Merchant Dashboard", example: "Transaction search (mobile) — filter by exact datetime range to investigate a specific batch" },
-                    { area: "Merchant Dashboard", example: "API log filter — narrow down webhook or API call logs to a precise time window" },
-                    { area: "Support Dashboard", example: "Incident timeline (mobile) — set the exact start and end time of a service disruption" },
-                    { area: "Support Dashboard", example: "Shift-based filtering — view tickets handled during a specific shift window" },
-                ]}
-                notes="Use when both date and time precision are needed on mobile or narrow viewports. Time stays inside the dialog to minimise clicks — the user picks dates, adjusts times, and applies all in one flow. Start defaults to 00:00, end to 23:59."
+                title="Date & Time Range Picker — Single Month"
+                description="Start and end date+time selection. Single calendar with Start/End rows containing both date and time inputs."
+                whenToUse="The user needs to define a precise time window — not just which days, but the exact hours. Filtering logs, narrowing down events, or any scenario where the boundaries of the range need minute-level precision. Time stays inside the dialog so everything is done in one flow."
             >
                 <DateTimeRangePicker label="Date and time" singleMonth />
             </VariantSection>
 
             <Divider />
 
-            {/* ─── Variant 6: Date & Time Range (dual month) ──────────────── */}
+            {/* ─── 6: Date & Time Range (dual month) ──────────────────────── */}
             <VariantSection
                 number={6}
-                title="Date & Time Range Picker (dual month)"
-                description="Desktop layout with a preset sidebar, dual calendar, a single-row Start/End with date+time inputs, and Clear + Cancel/Apply below."
-                usage={[
-                    { area: "Merchant Dashboard", example: "Settlement reconciliation — match transactions to bank deposits with precise datetime ranges" },
-                    { area: "Merchant Dashboard", example: "Fraud investigation — examine transaction patterns within an exact time window" },
-                    { area: "Support Dashboard", example: "Escalation analysis — review tickets escalated during a specific datetime range" },
-                    { area: "Support Dashboard", example: "Outage post-mortem — define the precise start and end of an incident for reporting" },
-                ]}
-                notes="Use on desktop when both date range and time precision are critical. The preset sidebar offers quick selections with start time 00:00 and end time 23:59 by default. Start and End sit on a single horizontal row to make the most of the wider viewport."
+                title="Date & Time Range Picker — Dual Month"
+                description="Desktop layout with preset sidebar, dual calendar, Start/End date+time on one row, and Clear + Cancel/Apply."
+                whenToUse="The desktop version of the time range picker. Two months visible for cross-month selections, presets for quick access, and all date+time inputs visible at once. Use whenever precise time windows are needed and the user has a full-width screen."
             >
                 <DateTimeRangePicker label="Date and time" />
             </VariantSection>
 
             <Divider />
 
-            {/* ─── Design Decisions Summary ────────────────────────────────── */}
+            {/* ─── Design Decisions ────────────────────────────────────────── */}
             <div className="w-full">
                 <h2 className="mb-4 text-lg font-semibold text-primary">Design Decisions</h2>
                 <SummaryTable />
