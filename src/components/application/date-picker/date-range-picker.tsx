@@ -150,27 +150,37 @@ export const DateRangePicker = ({ label, value: valueProp, defaultValue, onChang
                                                     <DateInput slot="end" className="flex-1" />
                                                 </div>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-3 p-4">
+                                            <div className="flex items-center justify-between gap-3 p-4">
                                                 <Button
+                                                    slot={null}
                                                     size="md"
-                                                    color="secondary"
-                                                    onClick={() => {
-                                                        onCancel?.();
-                                                        close();
-                                                    }}
+                                                    color="link-gray"
+                                                    onClick={handleClear}
                                                 >
-                                                    Cancel
+                                                    Clear
                                                 </Button>
-                                                <Button
-                                                    size="md"
-                                                    color="primary"
-                                                    onClick={() => {
-                                                        onApply?.();
-                                                        close();
-                                                    }}
-                                                >
-                                                    Apply
-                                                </Button>
+                                                <div className="flex gap-3">
+                                                    <Button
+                                                        size="md"
+                                                        color="secondary"
+                                                        onClick={() => {
+                                                            onCancel?.();
+                                                            close();
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                    <Button
+                                                        size="md"
+                                                        color="primary"
+                                                        onClick={() => {
+                                                            onApply?.();
+                                                            close();
+                                                        }}
+                                                    >
+                                                        Apply
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </>
                                     )}

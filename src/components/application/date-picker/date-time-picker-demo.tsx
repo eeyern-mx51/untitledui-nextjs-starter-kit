@@ -48,7 +48,8 @@ const SummaryTable = () => {
     const rows = [
         { decision: "Trigger", approach: "Button (not input)", why: "Prevents free-text entry errors; consistent click target" },
         { decision: "Label", approach: "Above button", why: "Matches input field pattern; provides context" },
-        { decision: "Clear", approach: "Inside dialog, keeps open", why: "User can immediately re-select after clearing" },
+        { decision: "Clear", approach: "Link in footer (left), keeps dialog open", why: "User can immediately re-select after clearing. Present in every variant." },
+        { decision: "Footer layout", approach: "Clear (left) | Cancel + Apply (right)", why: "Consistent footer across all variants — clear resets, cancel discards, apply confirms" },
         { decision: "Frontend errors", approach: "Inside dialog", why: "Error is actionable within the dialog context" },
         { decision: "Backend errors", approach: "Hint text below button", why: "Consistent with form input error pattern" },
         { decision: "Single date + time", approach: "Two separate fields", why: "Keeps calendar simple; time can be optional/independent" },

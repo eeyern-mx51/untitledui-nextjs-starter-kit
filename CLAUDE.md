@@ -818,7 +818,7 @@ These rules govern all date and time picker components in the product. The produ
 
 1. **Button-triggered**: Date selection always uses a button that opens a calendar picker dialog. The button is the primary interaction surface — NOT an inline input field.
 2. **Label**: A label sits above the button for context, matching the pattern used for input fields.
-3. **Clear button**: Every date picker dialog includes a Clear button that resets the selection and keeps the dialog open (does NOT close on clear).
+3. **Clear button**: Every date picker dialog includes a Clear button in the **footer** that resets the selection and keeps the dialog open (does NOT close on clear). The footer layout is always: `Clear` (link-gray, left-aligned) with `Cancel` + `Apply` (right-aligned). This is consistent across all variants — single date, date+time, date range, and date+time range.
 4. **Frontend validation**: Validation errors appear inside the dialog after the user selects a date and presses Apply.
 5. **Backend validation**: For form submissions, backend errors appear as supporting/hint text below the button, matching how input field errors are displayed.
 6. **Date input inside dialog**: For keyboard users who need manual date entry, segmented date input fields (dd/mm/yyyy) are provided inside the picker dialog — not as the main trigger.
@@ -849,9 +849,11 @@ These rules govern all date and time picker components in the product. The produ
 
 ### Implementation Status
 
-- [ ] Single Date Picker — add label, clear button, validation
-- [ ] Single Date & Time — decouple into separate date button + time input
-- [ ] Date Range Picker — add label, clear button, validation
-- [ ] Date & Time Range Picker — add label, clear button, validation
+- [x] Single Date Picker — label, clear button, Cancel/Apply footer
+- [x] Single Date & Time — decoupled into separate date button + time input, clear button
+- [x] Date Range Picker (single month) — label, presets row, Start/End inputs, clear button
+- [x] Date Range Picker (dual month) — label, preset sidebar, Clear + date inputs + Cancel/Apply footer
+- [x] Date & Time Range Picker (single month) — label, Start/End date+time rows, clear button
+- [x] Date & Time Range Picker (dual month) — label, preset sidebar, Start/End horizontal row, Clear + Cancel/Apply
 - [ ] Backend error supporting text below buttons
-- [ ] Remove old "no actions" variants (superseded by these patterns)
+- [x] Remove old "no actions" variants (superseded by these patterns)
